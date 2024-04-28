@@ -65,7 +65,7 @@ resource blobStore 'Microsoft.Storage/storageAccounts@2023-01-01' = {
 
 var storageBlobDataContributerRole = subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'ba92f5b4-2d11-453d-a403-e96b0029c9fe')
 resource auth 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid(subscription().id, resourceGroup().id, storageBlobDataContributerRole)
+  name: guid(subscription().id, resourceGroup().id, managedIdentity.id, storageBlobDataContributerRole)
   scope: resourceGroup()
   properties: {
     roleDefinitionId: storageBlobDataContributerRole

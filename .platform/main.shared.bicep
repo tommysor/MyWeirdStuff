@@ -37,7 +37,7 @@ var acrPullRole = subscriptionResourceId('Microsoft.Authorization/roleDefinition
 
 resource aksAcrPull 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   scope: containerRegistry
-  name: guid(subscription().id, resourceGroup().id, acrPullRole)
+  name: guid(subscription().id, resourceGroup().id, identity.id, acrPullRole)
   properties: {
       roleDefinitionId: acrPullRole
       principalType: 'ServicePrincipal'
