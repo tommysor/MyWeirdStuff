@@ -6,6 +6,10 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <ContainerBaseImage>mcr.microsoft.com/dotnet/nightly/aspnet:9.0.0-preview.3-jammy-chiseled</ContainerBaseImage>
+  </PropertyGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\MyWeirdStuff.ServiceDefaults\MyWeirdStuff.ServiceDefaults.csproj" />
   </ItemGroup>
