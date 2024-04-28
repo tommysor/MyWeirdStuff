@@ -62,36 +62,6 @@ app.MapGet("/weatherforecast", () =>
 
 app.MapDefaultEndpoints();
 
-{
-    // Temporary to test connection to Blob store
-
-    var logger = app.Services.GetRequiredService<ILoggerFactory>().CreateLogger("TestBlobs");
-    try
-    {
-        var configuration = app.Services.GetRequiredService<IConfiguration>();
-        var containerConnectionUri = configuration["services:storage:blob:0"];
-        logger.LogInformation("BlobContainerConnection: {Uri}", containerConnectionUri);
-
-        var blobService = app.Services.GetRequiredService<BlobServiceClient>();
-        var testContainer = blobService.GetBlobContainerClient("test1");
-
-        await testContainer.CreateIfNotExistsAsync();
-        var blobs = testContainer.GetBlobsAsync();
-        logger.LogInformation("Blobs fetched");
-        await foreach (var page in blobs.AsPages())
-        {
-            foreach (var blob in page.Values)
-            {
-                logger.LogInformation("Blob '{BlobName}'", blob.Name);
-            }
-        }
-    }
-    catch (Exception ex)
-    {
-        logger.LogError(ex, "Temporary test blob store failed");
-    }
-}
-
 app.Run();
 
 record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
