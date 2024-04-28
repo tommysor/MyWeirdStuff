@@ -1,0 +1,35 @@
+name: Deployment
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+    - main
+    paths-ignore:
+    - '*.md'
+    - '.gitignore'
+    - '.vscode/*'
+    - '.devcontainer/*'
+
+concurrency:
+  group: "${{ github.workflow }}-${{ github.ref }}"
+  cancel-in-progress: false
+
+env:
+  CONTAINER_VERSION_TAG: ${{ github.run_id }}-${{ github.run_attempt }}
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '9.0'
+        dotnet-quality: 'preview'
+    - name: workload
+      run: |
+        dotnet workload restore
+    - name: test
+      run: |
+        dotnet test
