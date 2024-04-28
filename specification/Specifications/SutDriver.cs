@@ -54,11 +54,16 @@ public sealed class SutDriver
 
     internal async Task AddComic(string url)
     {
-        throw new NotImplementedException();
+        var input = _page.GetByLabel("Add comic");
+        await input.FillAsync(url);
+
+        var submit = _page.GetByText("Save");
+        await submit.ClickAsync();
     }
 
     internal async Task AssertAddComicResponse(string expectedUrl)
     {
-        throw new NotImplementedException();
+        var actualUrl = _page.GetByLabel("Saved url");
+        await Assertions.Expect(actualUrl).ToHaveValueAsync(expectedUrl);
     }
 }
