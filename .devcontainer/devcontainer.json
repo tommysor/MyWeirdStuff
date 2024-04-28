@@ -1,0 +1,25 @@
+{
+	"name": "C# (.NET)",
+	"image": "mcr.microsoft.com/devcontainers/dotnet:1-8.0-bookworm",
+	"features": {
+		"ghcr.io/devcontainers/features/docker-in-docker:2": {},
+		"ghcr.io/devcontainers/features/dotnet:2": {
+			"version": "9.0"
+		}
+	},
+
+	"postCreateCommand": "/bin/bash ./.devcontainer/setup.sh",
+
+	"remoteUser": "root",
+
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-dotnettools.csdevkit",
+				"GitHub.vscode-github-actions",
+				"ms-azuretools.vscode-bicep",
+				"bierner.markdown-mermaid"
+			]
+		}
+	}
+}
