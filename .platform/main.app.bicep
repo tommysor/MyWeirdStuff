@@ -78,6 +78,7 @@ module apiservice 'containerapp.bicep' = {
     containerRegistryUrl: containerRegistryUrl
     managedIdentityClientId: managedIdentity.properties.clientId
     managedIdentityId: managedIdentity.id
+    appIngressExternal: true
     appIngressAllowInsecure: true
     applicationInsightsConnectionString: applicationInsights.properties.ConnectionString
   }
