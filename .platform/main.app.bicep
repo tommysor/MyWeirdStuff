@@ -53,6 +53,17 @@ resource applicationInsights 'Microsoft.Insights/components@2020-02-02' = {
   }
 }
 
+// Storage
+resource blobStore 'Microsoft.Storage/storageAccounts@2023-01-01' = {
+  name: 'store${resourceToken}'
+  location: location
+  sku: {
+    name: 'Standard_LRS'
+  }
+  kind: 'StorageV2'
+}
+
+// Container apps
 resource containerAppsEnvironment 'Microsoft.App/managedEnvironments@2023-11-02-preview' = {
   name: 'acae${resourceToken}'
   location: location
