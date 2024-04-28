@@ -15,6 +15,10 @@ concurrency:
   group: "${{ github.workflow }}-${{ github.ref }}"
   cancel-in-progress: false
 
+permissions:
+  id-token: write
+  contents: read
+
 env:
   CONTAINER_VERSION_TAG: ${{ github.run_id }}-${{ github.run_attempt }}
   APISERVICE_CONTAINERREPOSITORY: 'apiservice'
