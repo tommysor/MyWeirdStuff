@@ -1,0 +1,83 @@
+name: deploy
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+      containerRegistryUrl:
+        required: true
+        type: string
+      managedIdentityName:
+        required: true
+        type: string
+      apiserviceContainerImage:
+        required: true
+        type: string
+      webfrontendContainerImage:
+        required: true
+        type: string
+    outputs:
+      webfrontendUrl:
+        value: ${{ jobs.deploy.outputs.webfrontendUrl }}
+
+env:
+  GITHUB_SHA_SHORT: $(git rev-parse --short ${{ github.sha }})
+  DEPLOY_TIMESTAMP: $(date +%Y-%m-%dT%H.%M.%S)
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+  
+    outputs:
+      webfrontendUrl: ${{ steps.deploy-app-environment.outputs.webfrontendUrl }}
+  
+    env:
+      RG_APP: ${{ vars.RG_APP }}
+      RG_SHARED: ${{ vars.RG_SHARED }}
+      ASPNETCORE_ENVIRONMENT: ${{ inputs.environment }}
+  
+    steps:
+    - uses: actions/checkout@v4
+    - name: 'Az login'
+      uses: azure/login@v1
+      with:
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+  
+    - name: deploy app environment
+      id: deploy-app-environment
+      env:
+        deploymentName: ${{ env.RG_APP }}-${{ env.DEPLOY_TIMESTAMP }}-${{ env.GITHUB_SHA_SHORT }}
+      run: |
+        echo "Deploying applications"
+
+        az bicep lint --file .platform/main.app.bicep
+
+        deployResult=$(az deployment group create \
+          --mode Incremental \
+          --resource-group "${{ env.RG_APP }}" \
+          --name "${{ env.deploymentName }}" \
+          --template-file ./.platform/main.app.bicep \
+          --parameters aspnetcoreEnvironment=${{ env.ASPNETCORE_ENVIRONMENT }} \
+          --parameters containerRegistryUrl=${{ inputs.containerRegistryUrl }} \
+          --parameters managedIdentityName=${{ inputs.managedIdentityName }} \
+          --parameters managedIdentityScope=${{ env.RG_SHARED }} \
+          --parameters apiserviceContainerImage=${{ inputs.apiserviceContainerImage }} \
+          --parameters webfrontendContainerImage=${{ inputs.webfrontendContainerImage }} \
+          --parameters deployTimestamp=${{ env.DEPLOY_TIMESTAMP }} \
+          )
+
+        echo "# Deploy result"
+        echo $deployResult
+        echo "# ---"
+
+        echo "# setting outputs"
+
+        # webfrontendUrl
+        webfrontendUrl=$(echo $deployResult | jq --raw-output '.properties.outputs.webfrontendUrl.value')
+        echo "webfrontendUrl: $webfrontendUrl"
+        echo "webfrontendUrl=$webfrontendUrl" >> $GITHUB_OUTPUT
