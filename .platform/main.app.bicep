@@ -67,4 +67,21 @@ resource containerAppsEnvironment 'Microsoft.App/managedEnvironments@2023-11-02-
   }
 }
 
-output webfrontendUrl string = 'placeholder-url'
+var webfrontendAppName = 'webfrontend'
+module webfrontend 'containerapp.bicep' = {
+  name: 'webfrontend-${deployTimestamp}'
+  params: {
+    location: location
+    appName: webfrontendAppName
+    aspnetcoreEnvironment: aspnetcoreEnvironment
+    containerAppsEnvironmentId: containerAppsEnvironment.id
+    containerImage: webfrontendContainerImage
+    containerRegistryUrl: containerRegistryUrl
+    managedIdentityClientId: managedIdentity.properties.clientId
+    managedIdentityId: managedIdentity.id
+    appIngressExternal: true
+    applicationInsightsConnectionString: applicationInsights.properties.ConnectionString
+  }
+}
+
+output webfrontendUrl string = '${webfrontendAppName}.${containerAppsEnvironment.properties.defaultDomain}'

@@ -186,3 +186,13 @@ jobs:
       apiserviceContainerImage: ${{ needs.deploy-shared.outputs.apiserviceContainerImage }}
       webfrontendContainerImage: ${{ needs.deploy-shared.outputs.webfrontendContainerImage }}
     secrets: inherit
+
+  temporary-test:
+    runs-on: ubuntu-latest
+    needs:
+    - deploy-test
+    env:
+      theUrl: ${{ needs.deploy-test.outputs.webfrontendUrl }}
+    steps:
+    - run: |
+        echo "URL: ${{ env.theUrl }}"
