@@ -94,3 +94,81 @@ jobs:
         echo "webfrontendContainerImage=$webfrontendContainerImage" >> $GITHUB_OUTPUT
         
         echo "# done"
+
+  publish-apiservice:
+    runs-on: ubuntu-latest
+    needs:
+    - build-test
+    - deploy-shared
+    env:
+      containerRegistryUrl: ${{ needs.deploy-shared.outputs.containerRegistryUrl }}
+    steps:
+    - uses: actions/checkout@v4
+
+    - uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '9.0'
+        dotnet-quality: 'preview'
+
+    - name: 'Az login'
+      uses: azure/login@v1
+      with:
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+    - name: login containerRegistry
+      run: az acr login --name ${{ env.containerRegistryUrl }}
+
+    - name: publish apiservice
+      run: |
+        echo "Publishing apiservice"
+
+        pushd src/MyWeirdStuff.ApiService
+
+        dotnet publish \
+          -p ContainerRegistry='${{ env.containerRegistryUrl }}' \
+          -p PublishProfile=DefaultContainer \
+          -p ContainerImageTags='"${{ env.CONTAINER_VERSION_TAG }}"' \
+          -p ContainerRepository=${{ env.APISERVICE_CONTAINERREPOSITORY }}
+
+        popd
+
+  publish-webfrontend:
+    runs-on: ubuntu-latest
+    needs:
+    - build-test
+    - deploy-shared
+    env:
+      containerRegistryUrl: ${{ needs.deploy-shared.outputs.containerRegistryUrl }}
+    steps:
+    - uses: actions/checkout@v4
+
+    - uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '9.0'
+        dotnet-quality: 'preview'
+
+    - name: 'Az login'
+      uses: azure/login@v1
+      with:
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+    - name: login containerRegistry
+      run: az acr login --name ${{ env.containerRegistryUrl }}
+
+    - name: publish webfrontend
+      run: |
+        echo "Publishing webfrontend"
+
+        pushd src/MyWeirdStuff.Web
+
+        dotnet publish \
+          -p ContainerRegistry='${{ env.containerRegistryUrl }}' \
+          -p PublishProfile=DefaultContainer \
+          -p ContainerImageTags='"${{ env.CONTAINER_VERSION_TAG }}"' \
+          -p ContainerRepository=${{ env.WEBFRONTEND_CONTAINERREPOSITORY }}
+
+        popd
