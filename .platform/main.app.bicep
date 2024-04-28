@@ -63,6 +63,8 @@ resource blobStore 'Microsoft.Storage/storageAccounts@2023-01-01' = {
   kind: 'StorageV2'
 }
 
+var blobEndpoint = blobStore.properties.primaryEndpoints.blob
+
 var storageBlobDataContributerRole = subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'ba92f5b4-2d11-453d-a403-e96b0029c9fe')
 resource auth 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   name: guid(subscription().id, resourceGroup().id, managedIdentity.id, storageBlobDataContributerRole)
@@ -102,6 +104,12 @@ module apiservice 'containerapp.bicep' = {
     managedIdentityId: managedIdentity.id
     appIngressAllowInsecure: true
     applicationInsightsConnectionString: applicationInsights.properties.ConnectionString
+    environmentVars: [
+      {
+        name: 'services__storage__blob__0'
+        value: blobEndpoint
+      }
+    ]
   }
 }
 

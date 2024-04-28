@@ -18,6 +18,35 @@ param containerMemory string = '0.5Gi'
 param aspnetcoreEnvironment string
 param applicationInsightsConnectionString string = ''
 
+param environmentVars object[] = [
+  
+]
+
+var environmentVarsStandard = [
+  {
+    name: 'ASPNETCORE_ENVIRONMENT'
+    value: aspnetcoreEnvironment
+  }
+  {
+    name: 'AZURE_CLIENT_ID'
+    value: managedIdentityClientId
+  }
+  {
+    name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
+    value: applicationInsightsConnectionString
+  }
+  {
+    name: 'OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EVENT_LOG_ATTRIBUTES'
+    value: 'true'
+  }
+  {
+    name: 'OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EXCEPTION_LOG_ATTRIBUTES'
+    value: 'true'
+  }
+]
+
+var env = concat(environmentVarsStandard, environmentVars)
+
 resource app 'Microsoft.App/containerApps@2023-05-01' = {
   name: appName
   location: location
@@ -49,28 +78,7 @@ resource app 'Microsoft.App/containerApps@2023-05-01' = {
         {
           image: containerImage
           name: appName
-          env: [
-            {
-              name: 'ASPNETCORE_ENVIRONMENT'
-              value: aspnetcoreEnvironment
-            }
-            {
-              name: 'AZURE_CLIENT_ID'
-              value: managedIdentityClientId
-            }
-            {
-              name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
-              value: applicationInsightsConnectionString
-            }
-            {
-              name: 'OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EVENT_LOG_ATTRIBUTES'
-              value: 'true'
-            }
-            {
-              name: 'OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EXCEPTION_LOG_ATTRIBUTES'
-              value: 'true'
-            }
-          ]
+          env: env
           resources: {
             cpu: json(containerCpu)
             memory: containerMemory
