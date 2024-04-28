@@ -63,6 +63,17 @@ resource blobStore 'Microsoft.Storage/storageAccounts@2023-01-01' = {
   kind: 'StorageV2'
 }
 
+var storageBlobDataContributerRole = subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'ba92f5b4-2d11-453d-a403-e96b0029c9fe')
+resource auth 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(subscription().id, resourceGroup().id, storageBlobDataContributerRole)
+  scope: resourceGroup()
+  properties: {
+    roleDefinitionId: storageBlobDataContributerRole
+    principalType: 'ServicePrincipal'
+    principalId: managedIdentity.properties.principalId
+  }
+}
+
 // Container apps
 resource containerAppsEnvironment 'Microsoft.App/managedEnvironments@2023-11-02-preview' = {
   name: 'acae${resourceToken}'

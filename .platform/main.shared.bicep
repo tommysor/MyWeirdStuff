@@ -29,7 +29,7 @@ resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-11-01-pr
 }
 
 resource identity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-07-31-preview' = {
-  name: 'acrpullid${resourceToken}'
+  name: 'appid${resourceToken}'
   location: location
 }
 
