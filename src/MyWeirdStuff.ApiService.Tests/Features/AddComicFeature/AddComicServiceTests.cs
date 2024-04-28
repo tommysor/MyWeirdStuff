@@ -15,7 +15,7 @@ public sealed class AddComicServiceTests
         _sut = new(_blobStoreMock);
     }
 
-    [Fact(Skip = "Needs prerequisite convert to and from blob")]
+    [Fact]
     public async Task ShouldAddUrl()
     {
         // Given
