@@ -187,12 +187,31 @@ jobs:
       webfrontendContainerImage: ${{ needs.deploy-shared.outputs.webfrontendContainerImage }}
     secrets: inherit
 
-  temporary-test:
+  acceptance-test:
     runs-on: ubuntu-latest
     needs:
     - deploy-test
     env:
-      theUrl: ${{ needs.deploy-test.outputs.webfrontendUrl }}
+      targetUrl: ${{ needs.deploy-test.outputs.webfrontendUrl }}
     steps:
-    - run: |
-        echo "URL: ${{ env.theUrl }}"
+    - uses: actions/checkout@v4
+    - uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '9.0'
+        dotnet-quality: 'preview'
+
+    - name: Setup Workload
+      run: |
+        dotnet workload restore
+    - name: Setup Playwright
+      run: |
+        pushd ./specification
+        dotnet build
+        popd
+        pwsh specification/Specifications/bin/Debug/net9.0/playwright.ps1 install --with-deps
+    - name: Run Specifications
+      run: |
+        pushd ./specification
+        SPECIFICATIONS_BASEADDRESS=${{ env.targetUrl }} \
+          dotnet test
+        popd
