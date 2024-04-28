@@ -1,6 +1,6 @@
 {
-  "dotnet.defaultSolution": "MyWeirdStuff.sln",
-  // "dotnet.defaultSolution": "specification/Specifications.sln",
+  // "dotnet.defaultSolution": "MyWeirdStuff.sln",
+  "dotnet.defaultSolution": "specification/Specifications.sln",
   "git.autofetch": true,
   "git.autofetchPeriod": 180,
 }

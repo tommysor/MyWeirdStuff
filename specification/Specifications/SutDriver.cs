@@ -51,4 +51,14 @@ public sealed class SutDriver
 
         return baseAddress;
     }
+
+    internal async Task AddComic(string url)
+    {
+        throw new NotImplementedException();
+    }
+
+    internal async Task AssertAddComicResponse(string expectedUrl)
+    {
+        throw new NotImplementedException();
+    }
 }
