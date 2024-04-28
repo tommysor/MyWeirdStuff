@@ -67,6 +67,22 @@ resource containerAppsEnvironment 'Microsoft.App/managedEnvironments@2023-11-02-
   }
 }
 
+module apiservice 'containerapp.bicep' = {
+  name: 'apiservice-${deployTimestamp}'
+  params: {
+    location: location
+    appName: 'apiservice'
+    aspnetcoreEnvironment: aspnetcoreEnvironment
+    containerAppsEnvironmentId: containerAppsEnvironment.id
+    containerImage: apiserviceContainerImage
+    containerRegistryUrl: containerRegistryUrl
+    managedIdentityClientId: managedIdentity.properties.clientId
+    managedIdentityId: managedIdentity.id
+    appIngressAllowInsecure: true
+    applicationInsightsConnectionString: applicationInsights.properties.ConnectionString
+  }
+}
+
 var webfrontendAppName = 'webfrontend'
 module webfrontend 'containerapp.bicep' = {
   name: 'webfrontend-${deployTimestamp}'
