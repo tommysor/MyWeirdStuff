@@ -17,6 +17,8 @@ concurrency:
 
 env:
   CONTAINER_VERSION_TAG: ${{ github.run_id }}-${{ github.run_attempt }}
+  APISERVICE_CONTAINERREPOSITORY: 'apiservice'
+  WEBFRONTEND_CONTAINERREPOSITORY: 'web'
 
 jobs:
   build-test:
@@ -33,3 +35,58 @@ jobs:
     - name: test
       run: |
         dotnet test
+
+  deploy-shared:
+    runs-on: ubuntu-latest
+    environment: Shared
+    outputs:
+      containerRegistryUrl: ${{ steps.deploy.outputs.containerRegistryUrl }}
+      managedIdentityName: ${{ steps.deploy.outputs.managedIdentityName }}
+      apiserviceContainerImage: ${{ steps.deploy.outputs.apiserviceContainerImage }}
+      webfrontendContainerImage: ${{ steps.deploy.outputs.webfrontendContainerImage }}
+    steps:
+    - uses: actions/checkout@v4
+    - uses: azure/login@v1
+      with:
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+    - name: deploy
+      id: deploy
+      env:
+        deploymentName: ${{ vars.RG_SHARED }}-$(date +%Y-%m-%dT%H.%M.%S)-$(git rev-parse --short ${{ github.sha }})
+      run: |
+        echo 'Deploy shared resource group'
+
+        az bicep lint --file .platform/main.shared.bicep
+
+        deployResult=$(az deployment group create \
+          --mode Complete \
+          --resource-group "${{ vars.RG_SHARED }}" \
+          --name "${{ env.deploymentName }}" \
+          --template-file ./.platform/main.shared.bicep \
+          )
+
+        echo "# Deploy result"
+        echo $deployResult
+        echo "# ---"
+        
+        echo "# setting outputs"
+        
+        # containerRegistryUrl
+        containerRegistryUrl=$(echo $deployResult | jq --raw-output '.properties.outputs.containerRegistryUrl.value')
+        echo "containerRegistryUrl=$containerRegistryUrl" >> $GITHUB_OUTPUT
+        # managedIdentityName
+        managedIdentityName=$(echo $deployResult | jq --raw-output '.properties.outputs.managedIdentityName.value')
+        echo "managedIdentityName: $managedIdentityName"
+        echo "managedIdentityName=$managedIdentityName" >> $GITHUB_OUTPUT
+
+        # Predict container image names now that we have the container registry url
+        apiserviceContainerImage=$containerRegistryUrl/${{ env.APISERVICE_CONTAINERREPOSITORY }}:${{ env.CONTAINER_VERSION_TAG }}
+        echo "#SET apiserviceContainerImage=$apiserviceContainerImage"
+        echo "apiserviceContainerImage=$apiserviceContainerImage" >> $GITHUB_OUTPUT
+        webfrontendContainerImage=$containerRegistryUrl/${{ env.WEBFRONTEND_CONTAINERREPOSITORY }}:${{ env.CONTAINER_VERSION_TAG }}
+        echo "#SET webfrontendContainerImage=$webfrontendContainerImage"
+        echo "webfrontendContainerImage=$webfrontendContainerImage" >> $GITHUB_OUTPUT
+        
+        echo "# done"
