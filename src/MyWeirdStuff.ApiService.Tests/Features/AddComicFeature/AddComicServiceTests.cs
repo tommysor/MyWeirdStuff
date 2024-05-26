@@ -30,4 +30,48 @@ public sealed class AddComicServiceTests
         // Then
         Assert.Equal("https://url.ab", actual.Url);
     }
+
+    [Fact]
+    public async Task ShouldSetContainerName()
+    {
+        // Given
+        var request = new AddComicRequest
+        {
+            Url = "https://a.b/c",
+        };
+
+        // When
+        _ = await _sut.AddComic(request);
+
+        // Then
+        await _blobStoreMock
+            .Received(1)
+            .Save(
+                Arg.Is<string>(actual => actual == "a.b"),
+                Arg.Any<string>(),
+                Arg.Any<Stream>()
+            );
+    }
+
+    [Fact]
+    public async Task ShouldSetBlobName()
+    {
+        // Given
+        var request = new AddComicRequest
+        {
+            Url = "https://a.b/c",
+        };
+
+        // When
+        _ = await _sut.AddComic(request);
+
+        // Then
+        await _blobStoreMock
+            .Received(1)
+            .Save(
+                Arg.Any<string>(),
+                Arg.Is<string>(actual => actual == "c"),
+                Arg.Any<Stream>()
+            );
+    }
 }

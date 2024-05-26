@@ -16,13 +16,14 @@ public sealed class AddComicService
 
     public async Task<ComicDto> AddComic(AddComicRequest request)
     {
+        var uri = new Uri(request.Url);
         var entity = new ComicEntity
         {
             Url = request.Url,
         };
-
+        var blobName = uri.AbsolutePath[1..];
         var blobData = BlobConvertHelper.ConvertToStream(entity);
-        await _blobStore.Save("placeholder", "placeholder", blobData);
+        await _blobStore.Save(uri.Host, blobName, blobData);
 
         var dto = new ComicDto
         {
