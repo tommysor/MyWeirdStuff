@@ -17,6 +17,10 @@ public sealed class AddComicService
     public async Task<ComicDto> AddComic(AddComicRequest request)
     {
         var uri = new Uri(request.Url);
+        if (uri.AbsolutePath.Length < 2)
+        {
+            throw new InvalidOperationException("Path segment is required to identify the comic");
+        }
         var entity = new ComicEntity
         {
             Url = request.Url,

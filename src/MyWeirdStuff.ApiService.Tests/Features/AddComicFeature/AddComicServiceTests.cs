@@ -21,14 +21,14 @@ public sealed class AddComicServiceTests
         // Given
         var request = new AddComicRequest
         {
-            Url = "https://url.ab",
+            Url = "https://url.ab/c",
         };
 
         // When
         var actual = await _sut.AddComic(request);
 
         // Then
-        Assert.Equal("https://url.ab", actual.Url);
+        Assert.Equal("https://url.ab/c", actual.Url);
     }
 
     [Fact]
@@ -73,5 +73,21 @@ public sealed class AddComicServiceTests
                 Arg.Is<string>(actual => actual == "c"),
                 Arg.Any<Stream>()
             );
+    }
+
+    [Fact]
+    public async Task ShouldValidatePath()
+    {
+        // Given
+        var request = new AddComicRequest
+        {
+            Url = "https://a.b",
+        };
+
+        // When
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(()=> _sut.AddComic(request));
+
+        // Then
+        Assert.Contains("Path segment", ex.Message);
     }
 }
