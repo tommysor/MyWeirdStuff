@@ -1,5 +1,3 @@
-using MyWeirdStuff.ApiService.Features.SharedFeature.Helpers;
-
 namespace MyWeirdStuff.ApiService.Features.SharedFeature.KnownHosts;
 
 public sealed class KnownHostsService : IKnownHostsService
@@ -11,7 +9,7 @@ public sealed class KnownHostsService : IKnownHostsService
 
     public IKnownHost? GetKnownHost(string url)
     {
-        var host = StreamIdHelper.GetHost(url);
+        var host = IKnownHost.GetHostFromUrl(url);
         if (_knownHosts.TryGetValue(host, out var knownHost))
         {
             return knownHost;

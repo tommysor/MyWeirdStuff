@@ -1,6 +1,5 @@
 using MyWeirdStuff.ApiService.Features.SharedFeature.Contracts;
 using MyWeirdStuff.ApiService.Features.SharedFeature.Events;
-using MyWeirdStuff.ApiService.Features.SharedFeature.Helpers;
 using MyWeirdStuff.ApiService.Features.SharedFeature.Infrastructure;
 using MyWeirdStuff.ApiService.Features.SharedFeature.KnownHosts;
 
@@ -36,7 +35,7 @@ public sealed class AddComicService
             throw new InvalidOperationException("Host is not supported");
         }
 
-        var streamId = StreamIdHelper.GenerateStreamId(request.Url);
+        var streamId = knownHost.GenerateStreamId(request.Url);
         var existings = await _eventStore.Read(streamId);
         if (existings.Any())
         {
