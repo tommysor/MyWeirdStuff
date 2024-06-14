@@ -1,5 +1,7 @@
 # MyWeirdStuff
 
+## Resources
+https://learn.microsoft.com/en-us/rest/api/storageservices/Understanding-the-Table-Service-Data-Model
 
 # Todos
 - Add by url

@@ -1,5 +1,6 @@
 using MyWeirdStuff.ApiService.Features.SharedFeature.Contracts;
 using MyWeirdStuff.ApiService.Features.SharedFeature.Events;
+using MyWeirdStuff.ApiService.Features.SharedFeature.Helpers;
 using MyWeirdStuff.ApiService.Features.SharedFeature.Infrastructure;
 
 namespace MyWeirdStuff.ApiService.Features.AddComicFeature;
@@ -23,8 +24,7 @@ public sealed class AddComicService
             throw new InvalidOperationException("Path segment is required to identify the comic");
         }
 
-        //todo create streamId
-        var streamId = "a";
+        var streamId = StreamIdHelper.GenerateStreamId(request.Url);
         var existings = await _eventStore.Read(streamId);
         if (existings.Any())
         {
@@ -38,7 +38,7 @@ public sealed class AddComicService
         {
             Url = request.Url,
             PartitionKey = streamId,
-            RowKey = rowKeyTimePart + "_" + Guid.NewGuid().ToString(),
+            RowKey = rowKeyTimePart + "-" + Guid.NewGuid().ToString(),
         };
         await _eventStore.Insert(streamId, @event);
 
