@@ -7,29 +7,59 @@ public interface IKnownHost
 {
     private static readonly HashAlgorithm _hashAlgorithm = SHA256.Create();
 
+    public string GenerateStreamIdPartFromPath(string path);
+
     public string GenerateStreamId(string url)
     {
-        string host = GetHostFromUrl(url);
-        var hostBytes = Encoding.UTF8.GetBytes(host);
-        var hashBytes = _hashAlgorithm.ComputeHash(hostBytes);
-        var hashHex = Convert.ToHexString(hashBytes);
-        var hostStart = new string(host.Take(4).ToArray());
-        var remaining = 8 - hostStart.Length;
-        var streamId = hostStart + hashHex[..remaining];
+        var uri = new Uri(url);
+        string host = GetHostFromUrl(uri);
+        string streamIdHostPart = GenerateStreamIdPartFromHost(host);
+        string path = GetPathWithBasicSanitation(uri);
+        string streamIdPathPart = GenerateStreamIdPartFromPath(path);
+        return $"{streamIdHostPart}-{streamIdPathPart}";
+    }
 
-        //todo add specific comic id
-        return streamId;
+    private static string GetPathWithBasicSanitation(Uri uri)
+    {
+        // Remove the leading slash
+        var path = uri.AbsolutePath[1..];
+        // Remove the trailing slash
+        if (path[^1] == '/')
+        {
+            path = path[..^1];
+        }
+
+        return path;
+    }
+
+    private static string GenerateStreamIdPartFromHost(string host)
+    {
+        var remaining = 8 - host.Length;
+        if (remaining > 0)
+        {
+            var hostBytes = Encoding.UTF8.GetBytes(host);
+            var hashBytes = _hashAlgorithm.ComputeHash(hostBytes);
+            var hashHex = Convert.ToHexString(hashBytes);
+            return host + hashHex[..remaining];
+        }
+
+        return host;
+    }
+
+    public static string GetHostFromUrl(Uri url)
+    {
+        var host = url.Host;
+        if (host.StartsWith("www."))
+        {
+            host = host[4..];
+        }
+        return host;
     }
     
     public static string GetHostFromUrl(string url)
     {
         var uri = new Uri(url);
-        var host = uri.Host;
-        if (host.StartsWith("www."))
-        {
-            host = host[4..];
-        }
-
+        string host = GetHostFromUrl(uri);
         return host;
     }
 }

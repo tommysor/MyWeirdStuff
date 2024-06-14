@@ -4,9 +4,20 @@ namespace MyWeirdStuff.ApiService.Tests.Features.SharedFeature.KnownHosts;
 
 public class IKnownHostTests
 {
-    private class KnownHostTestClass : IKnownHost {}
+    private class KnownHostTestClass : IKnownHost
+    {
+        public string GenerateStreamIdPartFromPath(string path)
+        {
+            return path;
+        }
+    }
 
     private readonly IKnownHost _sut = new KnownHostTestClass();
+
+    private static string GetHostPartFromStreamId(string streamId)
+    {
+        return streamId.Split('-')[0];
+    }
 
     [Fact]
     public void ShouldGenerateStreamIdWithSameStartWhenHostIsEqual()
@@ -16,7 +27,9 @@ public class IKnownHostTests
         var streamId2 = _sut.GenerateStreamId("https://a.b/d");
 
         // Then
-        Assert.Equal(streamId1[..8], streamId2[..8]);
+        var streamId1Start = GetHostPartFromStreamId(streamId1);
+        var streamId2Start = GetHostPartFromStreamId(streamId2);
+        Assert.Equal(streamId1Start, streamId2Start);
     }
 
     [Fact]
@@ -27,7 +40,9 @@ public class IKnownHostTests
         var streamId2 = _sut.GenerateStreamId("https://x.y/z");
 
         // Then
-        Assert.NotEqual(streamId1[..8], streamId2[..8]);
+        var streamId1Start = GetHostPartFromStreamId(streamId1);
+        var streamId2Start = GetHostPartFromStreamId(streamId2);
+        Assert.NotEqual(streamId1Start, streamId2Start);
     }
 
     [Fact]
@@ -38,7 +53,9 @@ public class IKnownHostTests
         var streamId2 = _sut.GenerateStreamId("https://www.a.b/d");
 
         // Then
-        Assert.Equal(streamId1[..8], streamId2[..8]);
+        var streamId1Start = GetHostPartFromStreamId(streamId1);
+        var streamId2Start = GetHostPartFromStreamId(streamId2);
+        Assert.Equal(streamId1Start, streamId2Start);
     }
 
     [Fact]
@@ -49,6 +66,8 @@ public class IKnownHostTests
         var streamId2 = _sut.GenerateStreamId("https://a.b/d");
 
         // Then
-        Assert.Equal(streamId1[..8], streamId2[..8]);
+        var streamId1Start = GetHostPartFromStreamId(streamId1);
+        var streamId2Start = GetHostPartFromStreamId(streamId2);
+        Assert.Equal(streamId1Start, streamId2Start);
     }
 }

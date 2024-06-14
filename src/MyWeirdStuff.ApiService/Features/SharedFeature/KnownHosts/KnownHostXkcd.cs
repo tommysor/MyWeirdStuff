@@ -2,5 +2,8 @@ namespace MyWeirdStuff.ApiService.Features.SharedFeature.KnownHosts;
 
 public sealed class KnownHostXkcd : IKnownHost
 {
-    // Add your code here
+    public string GenerateStreamIdPartFromPath(string path)
+    {
+        return path;
+    }
 }
