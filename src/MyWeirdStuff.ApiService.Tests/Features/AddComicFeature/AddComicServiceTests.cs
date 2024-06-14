@@ -145,14 +145,14 @@ public sealed class AddComicServiceTests
         // Given
         var request = new AddComicRequest
         {
-            Url = "https://url.ab/c",
+            Url = "https://a.b/c",
         };
 
         // When
         var actual = await _sut.AddComic(request);
 
         // Then
-        Assert.Equal("https://url.ab/c", actual.Url);
+        Assert.Equal("https://a.b/c", actual.Url);
     }
 
     [Fact]
@@ -161,7 +161,7 @@ public sealed class AddComicServiceTests
         // Given
         var request = new AddComicRequest
         {
-            Url = "https://url.ab/c",
+            Url = "https://a.b/c",
         };
 
         // When
@@ -183,7 +183,7 @@ public sealed class AddComicServiceTests
             {
                 new ComicAddedEvent
                 {
-                    Url = "https://url.ab/c",
+                    Url = "https://a.b/c",
                     PartitionKey = "a",
                     RowKey = "b",
                 }
@@ -191,7 +191,7 @@ public sealed class AddComicServiceTests
 
         var request = new AddComicRequest
         {
-            Url = "https://url.ab/c",
+            Url = "https://a.b/c",
         };
 
         // When
