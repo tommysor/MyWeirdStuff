@@ -2,16 +2,22 @@ using MyWeirdStuff.ApiService.Features.SharedFeature.Contracts;
 using MyWeirdStuff.ApiService.Features.SharedFeature.Events;
 using MyWeirdStuff.ApiService.Features.SharedFeature.Helpers;
 using MyWeirdStuff.ApiService.Features.SharedFeature.Infrastructure;
+using MyWeirdStuff.ApiService.Features.SharedFeature.KnownHosts;
 
 namespace MyWeirdStuff.ApiService.Features.AddComicFeature;
 
 public sealed class AddComicService
 {
+    private readonly IKnownHostsService _knownHostsService;
     private readonly IEventStore _eventStore;
     private readonly TimeProvider _timeProvider;
 
-    public AddComicService(IEventStore eventStore, TimeProvider timeProvider)
+    public AddComicService(
+        IKnownHostsService knownHostsService,
+        IEventStore eventStore,
+        TimeProvider timeProvider)
     {
+        _knownHostsService = knownHostsService;
         _eventStore = eventStore;
         _timeProvider = timeProvider;
     }
@@ -22,6 +28,12 @@ public sealed class AddComicService
         if (uri.AbsolutePath.Length < 2)
         {
             throw new InvalidOperationException("Path segment is required to identify the comic");
+        }
+
+        var knownHost = _knownHostsService.GetKnownHost(request.Url);
+        if (knownHost is null)
+        {
+            throw new InvalidOperationException("Host is not supported");
         }
 
         var streamId = StreamIdHelper.GenerateStreamId(request.Url);

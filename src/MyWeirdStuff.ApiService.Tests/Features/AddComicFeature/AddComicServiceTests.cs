@@ -2,6 +2,7 @@ using Microsoft.Extensions.Time.Testing;
 using MyWeirdStuff.ApiService.Features.AddComicFeature;
 using MyWeirdStuff.ApiService.Features.SharedFeature.Events;
 using MyWeirdStuff.ApiService.Features.SharedFeature.Infrastructure;
+using MyWeirdStuff.ApiService.Features.SharedFeature.KnownHosts;
 using NSubstitute;
 
 namespace MyWeirdStuff.ApiService.Tests.Features.AddComicFeature;
@@ -9,14 +10,16 @@ namespace MyWeirdStuff.ApiService.Tests.Features.AddComicFeature;
 public sealed class AddComicServiceTests
 {
     private readonly AddComicService _sut;
+    private readonly IKnownHostsService _knownHostsServiceMock;
     private readonly IEventStore _eventStoreMock;
     private readonly FakeTimeProvider _fakeTimeProvider;
 
     public AddComicServiceTests()
     {
+        _knownHostsServiceMock = Substitute.For<IKnownHostsService>();
         _eventStoreMock = Substitute.For<IEventStore>();
         _fakeTimeProvider = new();
-        _sut = new(_eventStoreMock, _fakeTimeProvider);
+        _sut = new(_knownHostsServiceMock, _eventStoreMock, _fakeTimeProvider);
     }
 
     [Fact]
@@ -215,5 +218,25 @@ public sealed class AddComicServiceTests
 
         // Then
         Assert.Contains("Path segment", ex.Message);
+    }
+
+    [Fact]
+    public async Task ShouldOnlyAcceptKnownHosts()
+    {
+        // Given
+        _knownHostsServiceMock
+            .GetKnownHost(default!)
+            .ReturnsForAnyArgs((IKnownHost?)null);
+
+        var request = new AddComicRequest
+        {
+            Url = "https://not.relevant/c",
+        };
+
+        // When
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(()=> _sut.AddComic(request));
+
+        // Then
+        Assert.Contains("Host is not supported", ex.Message);
     }
 }

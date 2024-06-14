@@ -9,12 +9,7 @@ public static class StreamIdHelper
 
     public static string GenerateStreamId(string url)
     {
-        var uri = new Uri(url);
-        var host = uri.Host;
-        if (host.StartsWith("www."))
-        {
-            host = host[4..];
-        }
+        string host = GetHost(url);
         var hostBytes = Encoding.UTF8.GetBytes(host);
         var hashBytes = _hashAlgorithm.ComputeHash(hostBytes);
         var hashHex = Convert.ToHexString(hashBytes);
@@ -24,5 +19,17 @@ public static class StreamIdHelper
 
         //todo add specific comic id
         return streamId;
+    }
+
+    public static string GetHost(string url)
+    {
+        var uri = new Uri(url);
+        var host = uri.Host;
+        if (host.StartsWith("www."))
+        {
+            host = host[4..];
+        }
+
+        return host;
     }
 }

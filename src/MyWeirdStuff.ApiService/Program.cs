@@ -1,6 +1,7 @@
 using Azure.Identity;
 using Azure.Storage.Blobs;
 using Microsoft.Extensions.Azure;
+using MyWeirdStuff.ApiService.Features.SharedFeature;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,6 +37,8 @@ builder.AddServiceDefaults();
 
 // Add services to the container.
 builder.Services.AddProblemDetails();
+
+builder.Services.AddSharedFeature();
 
 var app = builder.Build();
 
