@@ -1,4 +1,6 @@
+using Microsoft.Extensions.Time.Testing;
 using MyWeirdStuff.ApiService.Features.AddComicFeature;
+using MyWeirdStuff.ApiService.Features.SharedFeature.Events;
 using MyWeirdStuff.ApiService.Features.SharedFeature.Infrastructure;
 using NSubstitute;
 
@@ -7,12 +9,14 @@ namespace MyWeirdStuff.ApiService.Tests.Features.AddComicFeature;
 public sealed class AddComicServiceTests
 {
     private readonly AddComicService _sut;
-    private readonly IBlobStore _blobStoreMock;
+    private readonly IEventStore _eventStoreMock;
+    private readonly FakeTimeProvider _fakeTimeProvider;
 
     public AddComicServiceTests()
     {
-        _blobStoreMock = Substitute.For<IBlobStore>();
-        _sut = new(_blobStoreMock);
+        _eventStoreMock = Substitute.For<IEventStore>();
+        _fakeTimeProvider = new();
+        _sut = new(_eventStoreMock, _fakeTimeProvider);
     }
 
     [Fact]
@@ -32,47 +36,49 @@ public sealed class AddComicServiceTests
     }
 
     [Fact]
-    public async Task ShouldSetContainerName()
+    public async Task ShouldInsertEvent()
     {
         // Given
         var request = new AddComicRequest
         {
-            Url = "https://a.b/c",
+            Url = "https://url.ab/c",
         };
 
         // When
-        _ = await _sut.AddComic(request);
+        await _sut.AddComic(request);
 
         // Then
-        await _blobStoreMock
-            .Received(1)
-            .Save(
-                Arg.Is<string>(actual => actual == "a.b"),
-                Arg.Any<string>(),
-                Arg.Any<Stream>()
-            );
+        await _eventStoreMock
+            .ReceivedWithAnyArgs(1)
+            .Insert(default!, default!);
     }
 
     [Fact]
-    public async Task ShouldSetBlobName()
+    public async Task ShouldNotAddComicIfAlreadyExists()
     {
         // Given
+        _eventStoreMock
+            .Read(default!)
+            .ReturnsForAnyArgs(new List<IEvent>
+            {
+                new ComicAddedEvent
+                {
+                    Url = "https://url.ab/c",
+                    PartitionKey = "a",
+                    RowKey = "b",
+                }
+            });
+
         var request = new AddComicRequest
         {
-            Url = "https://a.b/c",
+            Url = "https://url.ab/c",
         };
 
         // When
-        _ = await _sut.AddComic(request);
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(()=> _sut.AddComic(request));
 
         // Then
-        await _blobStoreMock
-            .Received(1)
-            .Save(
-                Arg.Any<string>(),
-                Arg.Is<string>(actual => actual == "c"),
-                Arg.Any<Stream>()
-            );
+        Assert.Contains("Comic already exists", ex.Message);
     }
 
     [Fact]

@@ -1,17 +1,18 @@
 using MyWeirdStuff.ApiService.Features.SharedFeature.Contracts;
+using MyWeirdStuff.ApiService.Features.SharedFeature.Events;
 using MyWeirdStuff.ApiService.Features.SharedFeature.Infrastructure;
-using MyWeirdStuff.ApiService.Features.SharedFeature.Infrastructure.Helpers;
-using MyWeirdStuff.ApiService.Features.SharedFeature.Infrastructure.Models;
 
 namespace MyWeirdStuff.ApiService.Features.AddComicFeature;
 
 public sealed class AddComicService
 {
-    private readonly IBlobStore _blobStore;
+    private readonly IEventStore _eventStore;
+    private readonly TimeProvider _timeProvider;
 
-    public AddComicService(IBlobStore blobStore)
+    public AddComicService(IEventStore eventStore, TimeProvider timeProvider)
     {
-        _blobStore = blobStore;
+        _eventStore = eventStore;
+        _timeProvider = timeProvider;
     }
 
     public async Task<ComicDto> AddComic(AddComicRequest request)
@@ -21,17 +22,29 @@ public sealed class AddComicService
         {
             throw new InvalidOperationException("Path segment is required to identify the comic");
         }
-        var entity = new ComicEntity
+
+        //todo create streamId
+        var streamId = "a";
+        var existings = await _eventStore.Read(streamId);
+        if (existings.Any())
+        {
+            throw new InvalidOperationException("Comic already exists");
+        }
+
+        var now = _timeProvider.GetUtcNow();
+        var rowKeyTimePart = now.ToString("yyyyMMddHHmmssfff");
+
+        var @event = new ComicAddedEvent
         {
             Url = request.Url,
+            PartitionKey = streamId,
+            RowKey = rowKeyTimePart + "_" + Guid.NewGuid().ToString(),
         };
-        var blobName = uri.AbsolutePath[1..];
-        var blobData = BlobConvertHelper.ConvertToStream(entity);
-        await _blobStore.Save(uri.Host, blobName, blobData);
+        await _eventStore.Insert(streamId, @event);
 
         var dto = new ComicDto
         {
-            Url = entity.Url,
+            Url = @event.Url,
         };
         return dto;
     }
