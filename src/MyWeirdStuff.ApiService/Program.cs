@@ -1,7 +1,10 @@
 using Azure.Identity;
 using Azure.Storage.Blobs;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Azure;
+using MyWeirdStuff.ApiService.Features.AddComicFeature;
 using MyWeirdStuff.ApiService.Features.SharedFeature;
+using MyWeirdStuff.ApiService.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -38,7 +41,9 @@ builder.AddServiceDefaults();
 // Add services to the container.
 builder.Services.AddProblemDetails();
 
+builder.Services.AddInfrastructure();
 builder.Services.AddSharedFeature();
+builder.Services.AddAddComicFeature();
 
 var app = builder.Build();
 
@@ -61,6 +66,12 @@ app.MapGet("/weatherforecast", () =>
         ))
         .ToArray();
     return forecast;
+});
+
+app.MapPost("/AddComic", async ([FromServices]AddComicService service, [FromBody]AddComicRequest request) =>
+{
+    await service.AddComic(request);
+    return Results.Created();
 });
 
 app.MapDefaultEndpoints();

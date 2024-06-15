@@ -7,9 +7,7 @@ public class IKnownHostTests
     private class KnownHostTestClass : IKnownHost
     {
         public string GenerateStreamIdPartFromPath(string path)
-        {
-            return path;
-        }
+            => path;
     }
 
     private readonly IKnownHost _sut = new KnownHostTestClass();

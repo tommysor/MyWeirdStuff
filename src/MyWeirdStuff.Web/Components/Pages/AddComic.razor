@@ -1,0 +1,52 @@
+﻿@page "/addcomic"
+@using MyWeirdStuff.Web.Infrastructure
+@rendermode InteractiveServer
+
+@inject ApiServiceClient _apiServiceClient
+
+<PageTitle>Add Comic</PageTitle>
+
+<h1>Add comic</h1>
+
+<label>
+    Add comic
+    <input placeholder="Url for comic to add" @bind="urlToAdd" disabled="@isDisabled" />
+</label>
+
+<button @onclick="Save" disabled="@isDisabled">Save</button>
+
+<br>
+<label>Status: @status</label>
+
+@code {
+    private string? urlToAdd;
+    private string? status = "ready";
+    private bool isDisabled = false;
+    private async Task Save()
+    {
+        isDisabled = true;
+        try
+        {
+            if (string.IsNullOrWhiteSpace(urlToAdd))
+            {
+                status = "null or whitespace";
+            }
+            else
+            {
+                status = $"Add: {urlToAdd}";
+                try
+                {
+                    await _apiServiceClient.AddComic(urlToAdd);
+                }
+                catch (Exception ex)
+                {
+                    status = $"Error: {ex.Message}";
+                }
+            }
+        }
+        finally
+        {
+            isDisabled = false;
+        }
+    }
+}

@@ -54,6 +54,7 @@ public sealed class SutDriver
 
     internal async Task AddComic(string url)
     {
+        await _page.GetByText("Add comic").ClickAsync();
         var input = _page.GetByLabel("Add comic");
         await input.FillAsync(url);
 
