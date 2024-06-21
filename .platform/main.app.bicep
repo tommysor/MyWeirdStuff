@@ -54,7 +54,7 @@ resource applicationInsights 'Microsoft.Insights/components@2020-02-02' = {
 }
 
 // Storage
-resource blobStore 'Microsoft.Storage/storageAccounts@2023-01-01' = {
+resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
   name: 'store${resourceToken}'
   location: location
   sku: {
@@ -63,7 +63,8 @@ resource blobStore 'Microsoft.Storage/storageAccounts@2023-01-01' = {
   kind: 'StorageV2'
 }
 
-var blobEndpoint = blobStore.properties.primaryEndpoints.blob
+var blobEndpoint = storageAccount.properties.primaryEndpoints.blob
+var tableEndpoint = storageAccount.properties.primaryEndpoints.table
 
 var storageBlobDataContributerRole = subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'ba92f5b4-2d11-453d-a403-e96b0029c9fe')
 resource auth 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
@@ -108,6 +109,10 @@ module apiservice 'containerapp.bicep' = {
       {
         name: 'services__storage__blob__0'
         value: blobEndpoint
+      }
+      {
+        name: 'services__storage__table__0'
+        value: tableEndpoint
       }
     ]
   }
