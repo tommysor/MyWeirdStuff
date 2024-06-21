@@ -18,10 +18,14 @@
 <br>
 <label>Status: @status</label>
 
+<br>
+<label>Saved url: <input @bind="savedUrl" /></label>
+
 @code {
     private string? urlToAdd;
     private string? status = "ready";
     private bool isDisabled = false;
+    private string? savedUrl;
     private async Task Save()
     {
         isDisabled = true;
@@ -36,7 +40,9 @@
                 status = $"Add: {urlToAdd}";
                 try
                 {
-                    await _apiServiceClient.AddComic(urlToAdd);
+                    var saved = await _apiServiceClient.AddComic(urlToAdd);
+                    savedUrl = saved?.Url ?? "..missing..";
+                    status = "Saved";
                 }
                 catch (Exception ex)
                 {

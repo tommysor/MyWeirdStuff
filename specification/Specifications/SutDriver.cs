@@ -58,7 +58,7 @@ public sealed class SutDriver
         var input = _page.GetByLabel("Add comic");
         await input.FillAsync(url);
 
-        var submit = _page.GetByText("Save");
+        var submit = _page.GetByRole(AriaRole.Button, new() { Name = "Save" });
         await submit.ClickAsync();
     }
 

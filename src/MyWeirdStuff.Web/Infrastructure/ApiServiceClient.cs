@@ -1,3 +1,5 @@
+using MyWeirdStuff.Web.Contracts;
+
 namespace MyWeirdStuff.Web.Infrastructure;
 
 public sealed class ApiServiceClient
@@ -9,7 +11,7 @@ public sealed class ApiServiceClient
         _httpClient = httpClient;
     }
 
-    public async Task AddComic(string url)
+    public async Task<ComicDto?> AddComic(string url)
     {
         var request = new 
         { 
@@ -17,5 +19,7 @@ public sealed class ApiServiceClient
         };
         var response = await _httpClient.PostAsJsonAsync("AddComic", request);
         response.EnsureSuccessStatusCode();
+        var comic = await response.Content.ReadFromJsonAsync<ComicDto>();
+        return comic;
     }
 }
