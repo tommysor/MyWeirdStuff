@@ -23,7 +23,7 @@ builder.Services.AddHttpClient<WeatherApiClient>(client =>
 
 builder.Services.AddHttpClient<ApiServiceClient>(client =>
     {
-        client.BaseAddress = new("https+http://apiservice");
+        client.BaseAddress = new("http://apiservice");
     });
 
 var app = builder.Build();
