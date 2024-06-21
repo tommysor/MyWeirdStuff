@@ -67,11 +67,22 @@ var blobEndpoint = storageAccount.properties.primaryEndpoints.blob
 var tableEndpoint = storageAccount.properties.primaryEndpoints.table
 
 var storageBlobDataContributerRole = subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'ba92f5b4-2d11-453d-a403-e96b0029c9fe')
-resource auth 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+resource blobRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   name: guid(subscription().id, resourceGroup().id, managedIdentity.id, storageBlobDataContributerRole)
   scope: resourceGroup()
   properties: {
     roleDefinitionId: storageBlobDataContributerRole
+    principalType: 'ServicePrincipal'
+    principalId: managedIdentity.properties.principalId
+  }
+}
+
+var storageTableDataContributerRole = subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '0a9a7e1f-b9d0-4cc4-a60d-0319b160aaa3')
+resource tableRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(subscription().id, resourceGroup().id, managedIdentity.id, storageTableDataContributerRole)
+  scope: resourceGroup()
+  properties: {
+    roleDefinitionId: storageTableDataContributerRole
     principalType: 'ServicePrincipal'
     principalId: managedIdentity.properties.principalId
   }
