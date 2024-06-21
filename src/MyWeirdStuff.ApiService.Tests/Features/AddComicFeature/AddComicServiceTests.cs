@@ -60,17 +60,19 @@ public sealed class AddComicServiceTests
     public async Task ShouldNotAddComicIfAlreadyExists()
     {
         // Given
+        async IAsyncEnumerable<IEvent> GetEvents()
+        {
+            await Task.CompletedTask;
+            yield return new ComicAddedEvent
+            {
+                Url = "https://a.b/c",
+                PartitionKey = "a",
+                RowKey = "b",
+            };
+        };
         _eventStoreMock
             .Read(default!)
-            .ReturnsForAnyArgs(new List<IEvent>
-            {
-                new ComicAddedEvent
-                {
-                    Url = "https://a.b/c",
-                    PartitionKey = "a",
-                    RowKey = "b",
-                }
-            });
+            .ReturnsForAnyArgs(GetEvents());
 
         var request = new AddComicRequest
         {

@@ -36,8 +36,13 @@ public sealed class AddComicService
         }
 
         var streamId = knownHost.GenerateStreamId(request.Url);
-        var existings = await _eventStore.Read(streamId);
-        if (existings.Any())
+        var existings = _eventStore.Read(streamId);
+        var anyExistings = false;
+        await foreach (var _ in existings)
+        {
+            anyExistings = true;
+        }
+        if (anyExistings)
         {
             throw new InvalidOperationException("Comic already exists");
         }

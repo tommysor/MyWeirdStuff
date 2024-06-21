@@ -12,25 +12,30 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddAzureClients(clientFactory =>
 {
     var blobServiceUri = builder.Configuration["services:storage:blob:0"]!;
+    var tableServiceUri = builder.Configuration["services:storage:table:0"]!;
     if (builder.Environment.IsDevelopment())
     {
         /*
 DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;
 AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;
 BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;
+QueueEndpoint=http://127.0.0.1:10001/devstoreaccount1;
+TableEndpoint=http://127.0.0.1:10002/devstoreaccount1;
         */
         const string endpointsProtocol = "DefaultEndpointsProtocol=http";
         const string accountName = "AccountName=devstoreaccount1";
         const string accountKey = "AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==";
-        var endpoint = $"BlobEndpoint={blobServiceUri}/devstoreaccount1";
-        var blobServiceConnectionString = $"{endpointsProtocol};{accountName};{accountKey};{endpoint}";
 
+        var blobServiceConnectionString = $"{endpointsProtocol};{accountName};{accountKey};BlobEndpoint={blobServiceUri}/devstoreaccount1";
         clientFactory.AddBlobServiceClient(blobServiceConnectionString);
+
+        var tableServiceConnectionString = $"{endpointsProtocol};{accountName};{accountKey};TableEndpoint={tableServiceUri}/devstoreaccount1";
+        clientFactory.AddTableServiceClient(tableServiceConnectionString);
     }
     else
     {
-        var serviceUri = new Uri(blobServiceUri);
-        clientFactory.AddBlobServiceClient(serviceUri);
+        clientFactory.AddBlobServiceClient(new Uri(blobServiceUri));
+        clientFactory.AddTableServiceClient(new Uri(tableServiceUri));
         clientFactory.UseCredential(new DefaultAzureCredential());
     }
 });
@@ -75,6 +80,12 @@ app.MapPost("/AddComic", async ([FromServices]AddComicService service, [FromBody
 });
 
 app.MapDefaultEndpoints();
+
+using (var scope = app.Services.CreateScope())
+{
+    var tableServiceClient = scope.ServiceProvider.GetRequiredService<Azure.Data.Tables.TableServiceClient>();
+    await tableServiceClient.CreateTableIfNotExistsAsync("comics");
+}
 
 app.Run();
 
