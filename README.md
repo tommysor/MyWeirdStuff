@@ -13,4 +13,3 @@ https://learn.microsoft.com/en-us/rest/api/storageservices/Understanding-the-Tab
 - Infrastructure
   - Production environment
   - Ephemeral test environment
-  - Split commit checks from deploy
