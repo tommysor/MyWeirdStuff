@@ -209,10 +209,12 @@ jobs:
   deploy-test:
     uses: ./.github/workflows/deploy.yml
     needs:
+    - commit
     - deploy-shared
     - publish-apiservice
     - publish-webfrontend
     with:
+      commitHash: ${{ needs.commit.outputs.commitHash }}
       environment: 'Test'
       containerRegistryUrl: ${{ needs.deploy-shared.outputs.containerRegistryUrl }}
       managedIdentityName: ${{ needs.deploy-shared.outputs.managedIdentityName }}
