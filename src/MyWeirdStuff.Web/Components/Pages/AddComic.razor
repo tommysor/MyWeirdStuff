@@ -25,8 +25,19 @@
 @code {
     private string? urlToAdd;
     private string? status = "ready";
-    private bool isDisabled = false;
+    private bool isDisabled = true;
     private string? savedUrl;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await Task.CompletedTask;
+        if (firstRender)
+        {
+            isDisabled = false;
+            StateHasChanged();
+        }
+    }
+
     private async Task Save()
     {
         isDisabled = true;
