@@ -3,6 +3,9 @@ name: deploy
 on:
   workflow_call:
     inputs:
+      commitHash:
+        required: true
+        type: string
       environment:
         required: true
         type: string
@@ -41,6 +44,8 @@ jobs:
   
     steps:
     - uses: actions/checkout@v4
+      with:
+        ref: ${{ inputs.commitHash }}
     - name: 'Az login'
       uses: azure/login@v2
       with:
