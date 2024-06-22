@@ -19,7 +19,8 @@
 <label>Status: @status</label>
 
 <br>
-<label>Saved url: <input @bind="savedUrl" /></label>
+<label id="savedUrlLabel">Saved url</label>
+<span aria-labelledby="savedUrlLabel" >@savedUrl</span>
 
 @code {
     private string? urlToAdd;

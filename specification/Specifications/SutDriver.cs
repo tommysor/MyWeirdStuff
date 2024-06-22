@@ -55,6 +55,9 @@ public sealed class SutDriver
     internal async Task AddComic(string url)
     {
         await _page.GetByText("Add comic").ClickAsync();
+        // Wait for SignalR connection
+        await Task.Delay(500);
+        
         var input = _page.GetByLabel("Add comic");
         await input.FillAsync(url);
 
@@ -65,6 +68,6 @@ public sealed class SutDriver
     internal async Task AssertAddComicResponse(string expectedUrl)
     {
         var actualUrl = _page.GetByLabel("Saved url");
-        await Assertions.Expect(actualUrl).ToHaveValueAsync(expectedUrl);
+        await Assertions.Expect(actualUrl).ToHaveTextAsync(expectedUrl);
     }
 }

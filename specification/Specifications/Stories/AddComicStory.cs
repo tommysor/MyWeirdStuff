@@ -26,7 +26,7 @@ public sealed class AddComicStory : IAsyncLifetime
     private int GenerateRandomXkcdComicId()
         => _random.Next(1, 2500);
 
-    [Fact(Skip = "Not implemented")]
+    [Fact]
     public async Task ShouldAddUrl()
     {
         // Given
