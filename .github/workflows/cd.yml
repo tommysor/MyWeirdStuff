@@ -2,14 +2,11 @@ name: Deployment
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-    - main
-    paths-ignore:
-    - '*.md'
-    - '.gitignore'
-    - '.vscode/*'
-    - '.devcontainer/*'
+    inputs:
+      commitHash:
+        description: 'The Commit hash to deploy'
+        required: true
+        type: string
 
 concurrency:
   group: "${{ github.workflow }}-${{ github.ref }}"
@@ -29,6 +26,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
+      with:
+        ref: ${{ inputs.commitHash }}
     - uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '9.0'
