@@ -39,7 +39,10 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: lastSuccessfulCommit
+        run-id: ${{ github.event.workflow_run.id }}
+        github-token: ${{ secrets.GITHUB_TOKEN }}
     - name: setHash
+      id: setHash
       run: |
         if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
           echo "commitHash=${{ github.event.inputs.commitHash }}"
