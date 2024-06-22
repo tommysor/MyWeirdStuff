@@ -7,6 +7,13 @@ on:
         description: 'The Commit hash to deploy'
         required: true
         type: string
+  workflow_run:
+    workflows:
+    - ci
+    types:
+    - completed
+    branches:
+    - main
 
 concurrency:
   group: "${{ github.workflow }}-${{ github.ref }}"
