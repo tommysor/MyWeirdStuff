@@ -256,3 +256,18 @@ jobs:
         SPECIFICATIONS_BASEADDRESS=${{ env.targetUrl }} \
           dotnet test
         popd
+
+  deploy-prod:
+    uses: ./.github/workflows/deploy.yml
+    needs:
+    - acceptance-test
+    - commit
+    - deploy-shared
+    with:
+      commitHash: ${{ needs.commit.outputs.commitHash }}
+      environment: 'Production'
+      containerRegistryUrl: ${{ needs.deploy-shared.outputs.containerRegistryUrl }}
+      managedIdentityName: ${{ needs.deploy-shared.outputs.managedIdentityName }}
+      apiserviceContainerImage: ${{ needs.deploy-shared.outputs.apiserviceContainerImage }}
+      webfrontendContainerImage: ${{ needs.deploy-shared.outputs.webfrontendContainerImage }}
+    secrets: inherit
