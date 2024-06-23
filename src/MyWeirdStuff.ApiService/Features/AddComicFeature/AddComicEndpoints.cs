@@ -10,12 +10,13 @@ public static class AddComicEndpoints
     public static async Task<Results<Ok<ComicDto>, BadRequest<string>>> AddComic(
         [FromBody] AddComicRequest request,
         [FromServices] AddComicService service,
-        [FromServices] ILoggerFactory loggerFactory) 
+        [FromServices] ILoggerFactory loggerFactory,
+        CancellationToken cancellationToken)
     {
         var logger = loggerFactory.CreateLogger(nameof(AddComicEndpoints));
         try
         {
-            var result = await service.AddComic(request);
+            var result = await service.AddComic(request, cancellationToken);
             return TypedResults.Ok(result);
         }
         catch (ValidationException ex)

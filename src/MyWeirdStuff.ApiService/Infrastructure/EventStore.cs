@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using Azure.Data.Tables;
 using MyWeirdStuff.ApiService.Features.SharedFeature.Events;
 using MyWeirdStuff.ApiService.Features.SharedFeature.Infrastructure;
@@ -18,9 +19,9 @@ public sealed class EventStore : IEventStore
         _tableClient = _tableServiceClient.GetTableClient(_tableName);
     }
 
-    public async Task Insert(string streamId, IEvent @event)
+    public async Task Insert(string streamId, IEvent @event, CancellationToken cancellationToken)
     {
-        var addEntityResponse = await _tableClient.AddEntityAsync(@event);
+        var addEntityResponse = await _tableClient.AddEntityAsync(@event, cancellationToken: cancellationToken);
         if (addEntityResponse.IsError)
         {
             var exceptionMessage = $"{addEntityResponse.Status}:{addEntityResponse.ReasonPhrase}:{addEntityResponse.ClientRequestId}";
@@ -29,11 +30,11 @@ public sealed class EventStore : IEventStore
         _logger.LogInformation("Event {Event} added to stream {StreamId}", @event, streamId);
     }
 
-    public async IAsyncEnumerable<IEvent> Read(string streamId)
+    public async IAsyncEnumerable<IEvent> Read(string streamId, [EnumeratorCancellation]CancellationToken cancellationToken)
     {
         _logger.LogInformation("Reading events from stream {StreamId}", streamId);
-        var pageable = _tableClient.QueryAsync<ComicAddedEvent>(e => e.PartitionKey == streamId);
-        await foreach (var @event in pageable)
+        var pageable = _tableClient.QueryAsync<ComicAddedEvent>(e => e.PartitionKey == streamId, cancellationToken: cancellationToken);
+        await foreach (var @event in pageable.WithCancellation(cancellationToken))
         {
             yield return @event;
         }

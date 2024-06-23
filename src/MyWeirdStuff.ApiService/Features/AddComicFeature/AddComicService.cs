@@ -22,7 +22,7 @@ public sealed class AddComicService
         _timeProvider = timeProvider;
     }
 
-    public async Task<ComicDto> AddComic(AddComicRequest request)
+    public async Task<ComicDto> AddComic(AddComicRequest request, CancellationToken cancellationToken)
     {
         var uri = new Uri(request.Url);
         if (uri.AbsolutePath.Length < 2)
@@ -37,7 +37,7 @@ public sealed class AddComicService
         }
 
         var streamId = knownHost.GenerateStreamId(request.Url);
-        var existings = _eventStore.Read(streamId);
+        var existings = _eventStore.Read(streamId, cancellationToken);
         var anyExistings = false;
         await foreach (var _ in existings)
         {
@@ -57,7 +57,7 @@ public sealed class AddComicService
             PartitionKey = streamId,
             RowKey = rowKeyTimePart + "-" + Guid.NewGuid().ToString(),
         };
-        await _eventStore.Insert(streamId, @event);
+        await _eventStore.Insert(streamId, @event, cancellationToken);
 
         var dto = new ComicDto
         {

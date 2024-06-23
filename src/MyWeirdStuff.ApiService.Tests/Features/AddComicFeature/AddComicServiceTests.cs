@@ -33,7 +33,7 @@ public sealed class AddComicServiceTests
         };
 
         // When
-        var actual = await _sut.AddComic(request);
+        var actual = await _sut.AddComic(request, CancellationToken.None);
 
         // Then
         Assert.Equal("https://a.b/c", actual.Url);
@@ -49,12 +49,12 @@ public sealed class AddComicServiceTests
         };
 
         // When
-        await _sut.AddComic(request);
+        await _sut.AddComic(request, CancellationToken.None);
 
         // Then
         await _eventStoreMock
             .ReceivedWithAnyArgs(1)
-            .Insert(default!, default!);
+            .Insert(default!, default!, default);
     }
 
     [Fact]
@@ -72,7 +72,7 @@ public sealed class AddComicServiceTests
             };
         };
         _eventStoreMock
-            .Read(default!)
+            .Read(default!, default)
             .ReturnsForAnyArgs(GetEvents());
 
         var request = new AddComicRequest
@@ -81,7 +81,7 @@ public sealed class AddComicServiceTests
         };
 
         // When
-        var ex = await Assert.ThrowsAsync<InvalidOperationException>(()=> _sut.AddComic(request));
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(()=> _sut.AddComic(request, CancellationToken.None));
 
         // Then
         Assert.Contains("Comic already exists", ex.Message);
@@ -97,7 +97,7 @@ public sealed class AddComicServiceTests
         };
 
         // When
-        var ex = await Assert.ThrowsAsync<ValidationException>(()=> _sut.AddComic(request));
+        var ex = await Assert.ThrowsAsync<ValidationException>(()=> _sut.AddComic(request, CancellationToken.None));
 
         // Then
         Assert.Contains("Path segment", ex.Message);
@@ -117,9 +117,28 @@ public sealed class AddComicServiceTests
         };
 
         // When
-        var ex = await Assert.ThrowsAsync<ValidationException>(()=> _sut.AddComic(request));
+        var ex = await Assert.ThrowsAsync<ValidationException>(()=> _sut.AddComic(request, CancellationToken.None));
 
         // Then
         Assert.Contains("Host is not supported", ex.Message);
+    }
+
+    [Fact]
+    public async Task ShouldPassCancellationTokenToInsert()
+    {
+        // Given
+        var cs = new CancellationTokenSource();
+
+        // When
+        var request = new AddComicRequest { Url = "https://a.b/c" };
+        await _sut.AddComic(request, cs.Token);
+
+        // Then
+        await _eventStoreMock
+            .Received(1)
+            .Insert(
+                Arg.Any<string>(),
+                Arg.Any<IEvent>(),
+                cs.Token);
     }
 }
