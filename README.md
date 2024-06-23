@@ -11,3 +11,4 @@ https://learn.microsoft.com/en-us/rest/api/storageservices/Understanding-the-Tab
   - Get random
 - Infrastructure
   - Ephemeral test environment
+  - Prevent Deploy workflow from running when the ci workflow fails
