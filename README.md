@@ -11,5 +11,4 @@ https://learn.microsoft.com/en-us/rest/api/storageservices/Understanding-the-Tab
   - Add deduplication for retries
   - Get random
 - Infrastructure
-  - Production environment
   - Ephemeral test environment
