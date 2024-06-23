@@ -63,7 +63,7 @@ public sealed class SutDriver
         await submit.ClickAsync();
     }
 
-    internal async Task AssertAddComicResponse(string expectedUrl)
+    internal async Task ThenSavedUrlIs(string expectedUrl)
     {
         var actualUrl = _page.GetByLabel("Saved url");
         await Assertions.Expect(actualUrl).ToHaveTextAsync(expectedUrl);

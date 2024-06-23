@@ -36,6 +36,6 @@ public sealed class AddComicStory : IAsyncLifetime
         await _sutDriver.AddComic($"https://xkcd.com/{id}/");
 
         // Then
-        await _sutDriver.AssertAddComicResponse($"https://xkcd.com/{id}/");
+        await _sutDriver.ThenSavedUrlIs($"https://xkcd.com/{id}/");
     }
 }
