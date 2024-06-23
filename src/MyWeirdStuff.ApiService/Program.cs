@@ -73,11 +73,7 @@ app.MapGet("/weatherforecast", () =>
     return forecast;
 });
 
-app.MapPost("/AddComic", async ([FromServices]AddComicService service, [FromBody]AddComicRequest request) =>
-{
-    var dto = await service.AddComic(request);
-    return Results.Ok(dto);
-});
+app.MapAddComicFeature();
 
 app.MapDefaultEndpoints();
 

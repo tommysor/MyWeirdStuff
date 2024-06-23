@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Time.Testing;
 using MyWeirdStuff.ApiService.Features.AddComicFeature;
 using MyWeirdStuff.ApiService.Features.SharedFeature.Events;
+using MyWeirdStuff.ApiService.Features.SharedFeature.Exceptions;
 using MyWeirdStuff.ApiService.Features.SharedFeature.Infrastructure;
 using MyWeirdStuff.ApiService.Features.SharedFeature.KnownHosts;
 using NSubstitute;
@@ -96,7 +97,7 @@ public sealed class AddComicServiceTests
         };
 
         // When
-        var ex = await Assert.ThrowsAsync<InvalidOperationException>(()=> _sut.AddComic(request));
+        var ex = await Assert.ThrowsAsync<ValidationException>(()=> _sut.AddComic(request));
 
         // Then
         Assert.Contains("Path segment", ex.Message);
@@ -116,7 +117,7 @@ public sealed class AddComicServiceTests
         };
 
         // When
-        var ex = await Assert.ThrowsAsync<InvalidOperationException>(()=> _sut.AddComic(request));
+        var ex = await Assert.ThrowsAsync<ValidationException>(()=> _sut.AddComic(request));
 
         // Then
         Assert.Contains("Host is not supported", ex.Message);

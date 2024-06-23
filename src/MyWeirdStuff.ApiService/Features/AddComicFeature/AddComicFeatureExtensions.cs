@@ -7,4 +7,9 @@ public static class AddComicFeatureExtensions
         services.AddScoped<AddComicService>();
         return services;
     }
+
+    public static void MapAddComicFeature(this WebApplication app)
+    {
+        app.MapPost("/AddComic", AddComicEndpoints.AddComic);
+    }
 }

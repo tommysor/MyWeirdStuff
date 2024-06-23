@@ -5,8 +5,7 @@ https://learn.microsoft.com/en-us/rest/api/storageservices/Understanding-the-Tab
 
 # Todos
 - Features
-  - Add validation response (not InternalServerError)
-  - Add description
+  - Add description  
     Deal with multiple event types
   - Add deduplication for retries
   - Get random
