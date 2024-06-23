@@ -68,4 +68,10 @@ public sealed class SutDriver
         var actualUrl = _page.GetByLabel("Saved url");
         await Assertions.Expect(actualUrl).ToHaveTextAsync(expectedUrl);
     }
+
+    internal async Task ThenErrorMessageContains(string expectedErrorContains)
+    {
+        var status = _page.GetByLabel("status");
+        await Assertions.Expect(status).ToContainTextAsync(expectedErrorContains, new() { Timeout = 3000 });
+    }
 }

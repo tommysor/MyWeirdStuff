@@ -1,5 +1,6 @@
 ﻿@page "/addcomic"
 @using MyWeirdStuff.Web.Infrastructure
+@using MyWeirdStuff.Web.Exceptions
 @rendermode InteractiveServer
 
 @inject ApiServiceClient _apiServiceClient
@@ -16,7 +17,8 @@
 <button @onclick="Save" disabled="@isDisabled">Save</button>
 
 <br>
-<label>Status: @status</label>
+<label id="statusLabel">Status: </label>
+<span role="status" aria-labelledby="statusLabel">@status</span>
 
 <br>
 <label id="savedUrlLabel">Saved url</label>
@@ -55,6 +57,10 @@
                     var saved = await _apiServiceClient.AddComic(urlToAdd);
                     savedUrl = saved?.Url ?? "..missing..";
                     status = "Saved";
+                }
+                catch (ValidationException ex)
+                {
+                    status = ex.Message;
                 }
                 catch (Exception ex)
                 {

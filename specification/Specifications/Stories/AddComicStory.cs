@@ -38,4 +38,14 @@ public sealed class AddComicStory : IAsyncLifetime
         // Then
         await _sutDriver.ThenSavedUrlIs($"https://xkcd.com/{id}/");
     }
+
+    [Fact]
+    public async Task ShouldExplainWhenPathIsMissing()
+    {
+        // When
+        await _sutDriver.AddComic("https://xkcd.com");
+
+        // Then
+        await _sutDriver.ThenErrorMessageContains("required to identify the comic");
+    }
 }
