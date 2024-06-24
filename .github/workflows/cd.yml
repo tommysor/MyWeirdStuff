@@ -60,13 +60,12 @@ jobs:
         ref: ${{ needs.commit.outputs.commitHash }}
     - uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: | 
-          9.0
-          8.0
+        dotnet-version: '9.0'
         dotnet-quality: 'preview'
     - name: workload
       run: |
-        dotnet workload install aspire
+        echo '{"microsoft.net.sdk.aspire": "8.0.1/8.0.100"}' > ./aspireVersion.txt
+        dotnet workload install aspire --from-rollback-file ./aspireVersion.txt
     - name: test
       run: |
         dotnet test
@@ -240,14 +239,13 @@ jobs:
         ref: ${{ needs.commit.outputs.commitHash }}
     - uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: | 
-          9.0
-          8.0
+        dotnet-version: '9.0'
         dotnet-quality: 'preview'
 
     - name: Setup Workload
       run: |
-        dotnet workload install aspire
+        echo '{"microsoft.net.sdk.aspire": "8.0.1/8.0.100"}' > ./aspireVersion.txt
+        dotnet workload install aspire --from-rollback-file ./aspireVersion.txt
     - name: Setup Playwright
       run: |
         pushd ./specification
