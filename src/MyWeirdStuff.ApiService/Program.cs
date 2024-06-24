@@ -83,13 +83,6 @@ using (var scope = app.Services.CreateScope())
     await tableServiceClient.CreateTableIfNotExistsAsync("comics");
 }
 
-// c1
-// c2
-// c3
-// c4
-// c5
-// c6
-
 app.Run();
 
 record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
