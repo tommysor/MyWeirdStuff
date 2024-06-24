@@ -1,1 +1,1 @@
-dotnet watch --project src/MyWeirdStuff.AppHost/
+dotnet run --project src/MyWeirdStuff.AppHost/

@@ -57,7 +57,7 @@ for ((i = 0; i < 20; i++)); do
         --silent \
         --header "origin: http://localhost" \
         --header "Access-Control-Request-Method: POST" \
-        http://localhost:10000/comics \
+        http://localhost:10002/comics \
         && break
     echo "## CHECK Azurite $i"
     if [ $i -gt 20 ]; then
