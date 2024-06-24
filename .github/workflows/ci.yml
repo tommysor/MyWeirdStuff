@@ -23,13 +23,13 @@ jobs:
     - uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0
+    - name: workload
+      run: |
+        dotnet workload install aspire
     - uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 9.0
         dotnet-quality: 'preview'
-    - name: workload
-      run: |
-        dotnet workload install aspire
     - name: test
       run: |
         dotnet test
