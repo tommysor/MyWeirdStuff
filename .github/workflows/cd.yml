@@ -60,7 +60,9 @@ jobs:
         ref: ${{ needs.commit.outputs.commitHash }}
     - uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: '9.0'
+        dotnet-version: | 
+          9.0
+          8.0
         dotnet-quality: 'preview'
     - name: workload
       run: |
@@ -238,7 +240,9 @@ jobs:
         ref: ${{ needs.commit.outputs.commitHash }}
     - uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: '9.0'
+        dotnet-version: | 
+          9.0
+          8.0
         dotnet-quality: 'preview'
 
     - name: Setup Workload
