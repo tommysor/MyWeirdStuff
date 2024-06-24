@@ -1,1 +1,1 @@
-dotnet workload restore
+dotnet workload install aspire
