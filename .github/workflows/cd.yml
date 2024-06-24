@@ -241,11 +241,6 @@ jobs:
       with:
         dotnet-version: '9.0'
         dotnet-quality: 'preview'
-
-    - name: Setup Workload
-      run: |
-        echo '{"microsoft.net.sdk.aspire": "8.0.1/8.0.100"}' > ./aspireVersion.txt
-        dotnet workload install aspire --from-rollback-file ./aspireVersion.txt
     - name: Setup Playwright
       run: |
         pushd ./specification
