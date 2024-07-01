@@ -10,5 +10,8 @@ https://learn.microsoft.com/en-us/rest/api/storageservices/Understanding-the-Tab
   - Add deduplication for retries
   - Get random
 - Infrastructure
+  - Aspire version use latest  
+    When Aspire resumes shipping net9.0-preview versions  
+    Delete `aspireWorkloadVersionRollbackFile.json` and remove from `setup.sh` and workflows  
   - Ephemeral test environment
   - Prevent Deploy workflow from running when the ci workflow fails

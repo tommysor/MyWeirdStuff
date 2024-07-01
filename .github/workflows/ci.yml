@@ -26,8 +26,7 @@ jobs:
         dotnet-quality: 'preview'
     - name: workload
       run: |
-        echo '{"microsoft.net.sdk.aspire": "8.0.1/8.0.100"}' > ./aspireVersion.txt
-        dotnet workload install aspire --from-rollback-file ./aspireVersion.txt
+        dotnet workload install aspire --from-rollback-file ./aspireWorkloadVersionRollbackFile.json
     - name: test
       run: |
         dotnet test
