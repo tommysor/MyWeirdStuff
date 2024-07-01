@@ -10,6 +10,14 @@ on:
     - '.gitignore'
     - '.vscode/*'
     - '.devcontainer/*'
+  pull_request: 
+    branches:
+    - main
+    paths-ignore:
+    - '*.md'
+    - '.gitignore'
+    - '.vscode/*'
+    - '.devcontainer/*'
 
 concurrency:
   group: "${{ github.workflow }}-${{ github.ref }}"
