@@ -9,16 +9,16 @@ namespace MyWeirdStuff.ApiService.Features.AddComicFeature;
 public sealed class AddComicService
 {
     private readonly IKnownHostsService _knownHostsService;
-    private readonly IEventStore _eventStore;
+    private readonly ComicsRepository _comicsRepository;
     private readonly TimeProvider _timeProvider;
 
     public AddComicService(
         IKnownHostsService knownHostsService,
-        IEventStore eventStore,
+        ComicsRepository comicsRepository,
         TimeProvider timeProvider)
     {
         _knownHostsService = knownHostsService;
-        _eventStore = eventStore;
+        _comicsRepository = comicsRepository;
         _timeProvider = timeProvider;
     }
 
@@ -37,13 +37,9 @@ public sealed class AddComicService
         }
 
         var streamId = knownHost.GenerateStreamId(request.Url);
-        var existings = _eventStore.Read(streamId, cancellationToken);
-        var anyExistings = false;
-        await foreach (var _ in existings)
-        {
-            anyExistings = true;
-        }
-        if (anyExistings)
+        SharedFeature.Models.Comic? comic = await _comicsRepository.GetComic(streamId, cancellationToken);
+        
+        if (comic is not null)
         {
             throw new InvalidOperationException("Comic already exists");
         }
@@ -57,7 +53,7 @@ public sealed class AddComicService
             PartitionKey = streamId,
             RowKey = rowKeyTimePart + "-" + Guid.NewGuid().ToString(),
         };
-        await _eventStore.Insert(streamId, @event, cancellationToken);
+        await _comicsRepository.Insert(streamId, @event, cancellationToken);
 
         var dto = new ComicDto
         {

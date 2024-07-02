@@ -19,8 +19,9 @@ public sealed class AddComicServiceTests
     {
         _knownHostsServiceMock = Substitute.For<IKnownHostsService>();
         _eventStoreMock = Substitute.For<IEventStore>();
+var repository = new ComicsRepository(_eventStoreMock);
         _fakeTimeProvider = new();
-        _sut = new(_knownHostsServiceMock, _eventStoreMock, _fakeTimeProvider);
+        _sut = new(_knownHostsServiceMock, repository, _fakeTimeProvider);
     }
 
     [Fact]
