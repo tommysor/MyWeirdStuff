@@ -5,18 +5,15 @@ namespace MyWeirdStuff.ApiService.Features.SharedFeature.KnownHosts;
 
 public interface IKnownHost
 {
-    private static readonly HashAlgorithm _hashAlgorithm = SHA256.Create();
-
     public string GenerateStreamIdPartFromPath(string path);
 
     public string GenerateStreamId(string url)
     {
         var uri = new Uri(url);
         string host = GetHostFromUrl(uri);
-        string streamIdHostPart = GenerateStreamIdPartFromHost(host);
         string path = GetPathWithBasicSanitation(uri);
         string streamIdPathPart = GenerateStreamIdPartFromPath(path);
-        return $"{streamIdHostPart}-{streamIdPathPart}";
+        return $"{host}-{streamIdPathPart}";
     }
 
     private static string GetPathWithBasicSanitation(Uri uri)
@@ -30,20 +27,6 @@ public interface IKnownHost
         }
 
         return path;
-    }
-
-    private static string GenerateStreamIdPartFromHost(string host)
-    {
-        var remaining = 8 - host.Length;
-        if (remaining > 0)
-        {
-            var hostBytes = Encoding.UTF8.GetBytes(host);
-            var hashBytes = _hashAlgorithm.ComputeHash(hostBytes);
-            var hashHex = Convert.ToHexString(hashBytes);
-            return host + hashHex[..remaining];
-        }
-
-        return host;
     }
 
     public static string GetHostFromUrl(Uri url)
