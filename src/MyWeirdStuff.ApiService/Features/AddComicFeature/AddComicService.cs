@@ -57,6 +57,7 @@ public sealed class AddComicService
 
         var dto = new ComicDto
         {
+            Id = streamId,
             Url = @event.Url,
         };
         return dto;

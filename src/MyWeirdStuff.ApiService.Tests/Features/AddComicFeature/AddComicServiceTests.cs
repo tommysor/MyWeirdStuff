@@ -11,17 +11,15 @@ namespace MyWeirdStuff.ApiService.Tests.Features.AddComicFeature;
 public sealed class AddComicServiceTests
 {
     private readonly AddComicService _sut;
-    private readonly IKnownHostsService _knownHostsServiceMock;
     private readonly IEventStore _eventStoreMock;
     private readonly FakeTimeProvider _fakeTimeProvider;
 
     public AddComicServiceTests()
     {
-        _knownHostsServiceMock = Substitute.For<IKnownHostsService>();
         _eventStoreMock = Substitute.For<IEventStore>();
-var repository = new ComicsRepository(_eventStoreMock);
+        var repository = new ComicsRepository(_eventStoreMock);
         _fakeTimeProvider = new();
-        _sut = new(_knownHostsServiceMock, repository, _fakeTimeProvider);
+        _sut = new(new KnownHostsService(), repository, _fakeTimeProvider);
     }
 
     [Fact]
@@ -30,14 +28,14 @@ var repository = new ComicsRepository(_eventStoreMock);
         // Given
         var request = new AddComicRequest
         {
-            Url = "https://a.b/c",
+            Url = "https://xkcd.com/1",
         };
 
         // When
         var actual = await _sut.AddComic(request, CancellationToken.None);
 
         // Then
-        Assert.Equal("https://a.b/c", actual.Url);
+        Assert.Equal("https://xkcd.com/1", actual.Url);
     }
 
     [Fact]
@@ -46,7 +44,7 @@ var repository = new ComicsRepository(_eventStoreMock);
         // Given
         var request = new AddComicRequest
         {
-            Url = "https://a.b/c",
+            Url = "https://xkcd.com/1",
         };
 
         // When
@@ -59,6 +57,22 @@ var repository = new ComicsRepository(_eventStoreMock);
     }
 
     [Fact]
+    public async Task ShouldReturnComicId()
+    {
+        // Given
+        var request = new AddComicRequest
+        {
+            Url = "https://xkcd.com/1",
+        };
+
+        // When
+        var actual = await _sut.AddComic(request, CancellationToken.None);
+
+        // Then
+        Assert.Equal("xkcd.com-1", actual.Id);
+    }
+
+    [Fact]
     public async Task ShouldNotAddComicIfAlreadyExists()
     {
         // Given
@@ -67,7 +81,7 @@ var repository = new ComicsRepository(_eventStoreMock);
             await Task.CompletedTask;
             yield return new ComicAddedEvent
             {
-                Url = "https://a.b/c",
+                Url = "https://xkcd.com/1",
                 PartitionKey = "a",
                 RowKey = "b",
             };
@@ -78,7 +92,7 @@ var repository = new ComicsRepository(_eventStoreMock);
 
         var request = new AddComicRequest
         {
-            Url = "https://a.b/c",
+            Url = "https://xkcd.com/1",
         };
 
         // When
@@ -94,7 +108,7 @@ var repository = new ComicsRepository(_eventStoreMock);
         // Given
         var request = new AddComicRequest
         {
-            Url = "https://a.b",
+            Url = "https://xkcd.com",
         };
 
         // When
@@ -108,13 +122,9 @@ var repository = new ComicsRepository(_eventStoreMock);
     public async Task ShouldOnlyAcceptKnownHosts()
     {
         // Given
-        _knownHostsServiceMock
-            .GetKnownHost(default!)
-            .ReturnsForAnyArgs((IKnownHost?)null);
-
         var request = new AddComicRequest
         {
-            Url = "https://not.relevant/c",
+            Url = "https://some.unknown/c",
         };
 
         // When
@@ -131,7 +141,7 @@ var repository = new ComicsRepository(_eventStoreMock);
         var cs = new CancellationTokenSource();
 
         // When
-        var request = new AddComicRequest { Url = "https://a.b/c" };
+        var request = new AddComicRequest { Url = "https://xkcd.com/1" };
         await _sut.AddComic(request, cs.Token);
 
         // Then
