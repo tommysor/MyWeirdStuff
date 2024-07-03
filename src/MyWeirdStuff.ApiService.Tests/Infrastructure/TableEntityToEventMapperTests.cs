@@ -24,7 +24,7 @@ public class TableEntityToEventMapperTests
     }
 
     [Fact]
-    public void Map_WhenComicAddedEvent_ThenMapsToComicAddedEvent()
+    public void WhenComicAddedEvent_ThenMapsToComicAddedEvent()
     {        
         // Given
         var actual = TableEntityToEventMapper.Map(_tableEntity);
@@ -34,7 +34,7 @@ public class TableEntityToEventMapperTests
     }
 
     [Fact]
-    public void Map_WhenComicAddedEvent_ThenIdAndUrlShouldBeMapped()
+    public void WhenComicAddedEvent_ThenIdAndUrlShouldBeMapped()
     {
         // When
         var returned = TableEntityToEventMapper.Map(_tableEntity);
@@ -46,7 +46,7 @@ public class TableEntityToEventMapperTests
     }
 
     [Fact]
-    public void Map_WhenEventTypeMissing_ShouldDefaultToComicAddedEvent()
+    public void WhenEventTypeMissing_ShouldDefaultToComicAddedEvent()
     {
         // Given
         _tableEntity.Remove("EventType");
@@ -61,7 +61,7 @@ public class TableEntityToEventMapperTests
     }
 
     [Fact]
-    public void Map_WhenEventTypeVersionMissing_ShouldDefaultToComicAddedEvent()
+    public void WhenEventTypeVersionMissing_ShouldDefaultToComicAddedEvent()
     {
         // Given
         _tableEntity.Remove("EventTypeVersion");
@@ -77,7 +77,7 @@ public class TableEntityToEventMapperTests
     [Theory]
     [InlineData(null)]
     [InlineData(0)]
-    public void Map_WhenEventTypeVersionNullOrZero_ShouldDefaultToComicAddedEvent(int? eventTypeVersion)
+    public void WhenEventTypeVersionNullOrZero_ShouldDefaultToComicAddedEvent(int? eventTypeVersion)
     {
         // Given
         _tableEntity["EventTypeVersion"] = eventTypeVersion;
