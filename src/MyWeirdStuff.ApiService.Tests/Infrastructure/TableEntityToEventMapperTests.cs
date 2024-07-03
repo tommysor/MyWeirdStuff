@@ -6,23 +6,27 @@ namespace MyWeirdStuff.ApiService.Tests.Infrastructure;
 
 public class TableEntityToEventMapperTests
 {
-    [Fact]
-    public void Map_WhenComicAddedEvent_ThenMapsToComicAddedEvent()
+    private readonly TableEntity _tableEntity;
+
+    public TableEntityToEventMapperTests()
     {
-        // When
-        var tableEntity = new TableEntity
+        _tableEntity = new TableEntity
         {
-            PartitionKey = "partitionKey",
-            RowKey = "rowKey",
+            PartitionKey = "xkcd.com-1",
+            RowKey = "20240703123456789",
             Timestamp = DateTimeOffset.UtcNow,
             ETag = new Azure.ETag("etag"),
         };
-        tableEntity.Add("EventType", "ComicAddedEvent");
-        tableEntity.Add("EventTypeVersion", 0);
-        tableEntity.Add("Url", "https://xkcd.com/1/");
-        
+        _tableEntity.Add("EventType", "ComicAddedEvent");
+        _tableEntity.Add("EventTypeVersion", 0);
+        _tableEntity.Add("Url", "https://xkcd.com/1/");        
+    }
+
+    [Fact]
+    public void Map_WhenComicAddedEvent_ThenMapsToComicAddedEvent()
+    {        
         // Given
-        var actual = TableEntityToEventMapper.Map(tableEntity);
+        var actual = TableEntityToEventMapper.Map(_tableEntity);
         
         // Then
         Assert.IsType<ComicAddedEvent>(actual);
