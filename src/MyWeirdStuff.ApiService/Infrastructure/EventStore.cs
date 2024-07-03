@@ -36,24 +36,7 @@ public sealed class EventStore : IEventStore
         var pageable = _tableClient.QueryAsync<TableEntity>(e => e.PartitionKey == streamId, cancellationToken: cancellationToken);
         await foreach (var @event in pageable.WithCancellation(cancellationToken))
         {
-            var eventType = @event.GetString("EventType");
-            var eventTypeVersion = @event.GetInt32("EventTypeVersion");
-            IEvent mapped = eventType switch
-            {
-                null or "" or "ComicAddedEvent" =>
-                    eventTypeVersion switch
-                    {
-                        null or 0 => new ComicAddedEvent{
-                            PartitionKey = @event.PartitionKey,
-                            RowKey = @event.RowKey,
-                            Timestamp = @event.Timestamp,
-                            ETag = @event.ETag,
-                            Url = @event.GetString("Url"),
-                        },
-                        _ => throw new InvalidOperationException($"Unknown event type version {eventTypeVersion} for event type {eventType}"),
-                    },
-                _ => throw new InvalidOperationException($"Unknown event type {eventType}"),
-            };
+            var mapped = TableEntityToEventMapper.Map(@event);
             yield return mapped;
         }
     }
