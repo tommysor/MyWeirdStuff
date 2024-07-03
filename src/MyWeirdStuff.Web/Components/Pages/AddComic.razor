@@ -21,6 +21,10 @@
 <span role="status" aria-labelledby="statusLabel">@status</span>
 
 <br>
+<label id="savedComicIdLabel">Saved comic id</label>
+<span aria-labelledby="savedComicIdLabel" >@savedComicId</span>
+
+<br>
 <label id="savedUrlLabel">Saved url</label>
 <span aria-labelledby="savedUrlLabel" >@savedUrl</span>
 
@@ -29,6 +33,7 @@
     private string? status = "ready";
     private bool isDisabled = true;
     private string? savedUrl;
+    private string? savedComicId;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -56,6 +61,7 @@
                 {
                     var saved = await _apiServiceClient.AddComic(urlToAdd);
                     savedUrl = saved?.Url ?? "..missing..";
+                    savedComicId = saved?.Id ?? "..missing..";
                     status = "Saved";
                 }
                 catch (ValidationException ex)

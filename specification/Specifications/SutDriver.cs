@@ -69,6 +69,12 @@ public sealed class SutDriver
         await Assertions.Expect(actualUrl).ToHaveTextAsync(expectedUrl);
     }
 
+    internal async Task ThenSavedComicIdIs(string expectedComicId)
+    {
+        var actualId = _page.GetByLabel("Saved comic id");
+        await Assertions.Expect(actualId).ToHaveTextAsync(expectedComicId);
+    }
+
     internal async Task ThenErrorMessageContains(string expectedErrorContains)
     {
         var status = _page.GetByLabel("status");

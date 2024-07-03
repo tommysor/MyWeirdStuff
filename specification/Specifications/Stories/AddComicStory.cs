@@ -23,20 +23,33 @@ public sealed class AddComicStory : IAsyncLifetime
         await _sutDriver.Initialize();
     }
 
-    private int GenerateRandomXkcdComicId()
+    private int GenerateRandomXkcdComicNumber()
         => _random.Next(1, 2500);
 
     [Fact]
     public async Task ShouldAddUrl()
     {
         // Given
-        var id = GenerateRandomXkcdComicId();
+        var id = GenerateRandomXkcdComicNumber();
 
         // When
         await _sutDriver.AddComic($"https://xkcd.com/{id}/");
 
         // Then
         await _sutDriver.ThenSavedUrlIs($"https://xkcd.com/{id}/");
+    }
+
+    [Fact]
+    public async Task ShouldReturnComicId()
+    {
+        // Given
+        var number = GenerateRandomXkcdComicNumber();
+
+        // When
+        await _sutDriver.AddComic($"https://xkcd.com/{number}/");
+
+        // Then
+        await _sutDriver.ThenSavedComicIdIs($"xkcd.com-{number}");
     }
 
     [Fact]
