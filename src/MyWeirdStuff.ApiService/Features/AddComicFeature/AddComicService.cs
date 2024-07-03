@@ -45,13 +45,13 @@ public sealed class AddComicService
         }
 
         var now = _timeProvider.GetUtcNow();
-        var rowKeyTimePart = now.ToString("yyyyMMddHHmmssfff");
+        var rowKey = now.ToString("yyyyMMddHHmmssfff");
 
         var @event = new ComicAddedEvent
         {
             Url = request.Url,
             PartitionKey = streamId,
-            RowKey = rowKeyTimePart + "-" + Guid.NewGuid().ToString(),
+            RowKey = rowKey,
         };
         await _comicsRepository.Insert(streamId, @event, cancellationToken);
 
