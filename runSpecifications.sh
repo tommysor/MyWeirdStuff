@@ -15,13 +15,14 @@ APP_PID=$!
 # Wait for the app to start
 echo "## CHECK Web"
 webIsHealthy=true
-for ((i = 0; i < 30; i++)); do
+i=0
+for ((; i < 40; i++)); do
     curl \
         --silent \
         http://localhost:5200/health \
         && break
     echo "## CHECK Web $i"
-    if [ $i -gt 20 ]; then
+    if [ $i -gt 35 ]; then
         echo "## Web not started"
         webIsHealthy=false
         break
@@ -32,13 +33,13 @@ echo "## END Web"
 
 echo "## CHECK ApiService"
 apiServiceIsHealthy=true
-for ((i = 0; i < 30; i++)); do
+for ((; i < 40; i++)); do
     curl \
         --silent \
         http://localhost:5311/health \
         && break
     echo "## CHECK ApiService $i"
-    if [ $i -gt 20 ]; then
+    if [ $i -gt 35 ]; then
         echo "## ApiService not started"
         apiServiceIsHealthy=false
         break
@@ -49,7 +50,7 @@ echo "## END ApiService"
 
 echo "## CHECK Azurite"
 azuriteIsHealthy=true
-for ((i = 0; i < 20; i++)); do
+for ((; i < 40; i++)); do
     # Not really a health check, but shows that Azurite is up and running
     curl \
         -X OPTIONS \
@@ -60,7 +61,7 @@ for ((i = 0; i < 20; i++)); do
         http://localhost:10002/comics \
         && break
     echo "## CHECK Azurite $i"
-    if [ $i -gt 20 ]; then
+    if [ $i -gt 35 ]; then
         echo "## Azurite not started"
         azuriteIsHealthy=false
         break
