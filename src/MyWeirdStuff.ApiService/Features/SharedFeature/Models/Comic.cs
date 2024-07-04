@@ -4,9 +4,9 @@ namespace MyWeirdStuff.ApiService.Features.SharedFeature.Models;
 
 public sealed class Comic
 {
-    public string Id { get; set; }
-    public Uri Url { get; set; }
-    public string? Description { get; set; }
+    public string Id { get; private set; }
+    public Uri Url { get; private set; }
+    public string? Description { get; private set; }
 
     private Comic(string id, Uri url)
     {
