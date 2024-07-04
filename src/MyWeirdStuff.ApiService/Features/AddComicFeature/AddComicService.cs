@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Caching.Hybrid;
 using MyWeirdStuff.ApiService.Features.SharedFeature.Contracts;
 using MyWeirdStuff.ApiService.Features.SharedFeature.Events;
 using MyWeirdStuff.ApiService.Features.SharedFeature.Exceptions;
@@ -11,15 +12,18 @@ public sealed class AddComicService
     private readonly IKnownHostsService _knownHostsService;
     private readonly ComicsRepository _comicsRepository;
     private readonly TimeProvider _timeProvider;
+    private readonly HybridCache _cache;
 
     public AddComicService(
         IKnownHostsService knownHostsService,
         ComicsRepository comicsRepository,
-        TimeProvider timeProvider)
+        TimeProvider timeProvider,
+        HybridCache cache)
     {
         _knownHostsService = knownHostsService;
         _comicsRepository = comicsRepository;
         _timeProvider = timeProvider;
+        _cache = cache;
     }
 
     public async Task<ComicDto> AddComic(AddComicRequest request, CancellationToken cancellationToken)
@@ -37,8 +41,18 @@ public sealed class AddComicService
         }
 
         var streamId = knownHost.GenerateStreamId(request.Url);
+        var dto = await _cache.GetOrCreateAsync(
+            $"AddComic-{streamId}",
+            async ct => await AddComicCore(request, streamId, ct),
+            options: new HybridCacheEntryOptions { Expiration = TimeSpan.FromMinutes(1) },
+            token: cancellationToken);
+        return dto;
+    }
+
+    internal async Task<ComicDto> AddComicCore(AddComicRequest request, string streamId, CancellationToken cancellationToken)
+    {
         SharedFeature.Models.Comic? comic = await _comicsRepository.GetComic(streamId, cancellationToken);
-        
+
         if (comic is not null)
         {
             throw new InvalidOperationException("Comic already exists");

@@ -1,9 +1,10 @@
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Time.Testing;
 using MyWeirdStuff.ApiService.Features.AddComicFeature;
+using MyWeirdStuff.ApiService.Features.SharedFeature;
 using MyWeirdStuff.ApiService.Features.SharedFeature.Events;
 using MyWeirdStuff.ApiService.Features.SharedFeature.Exceptions;
 using MyWeirdStuff.ApiService.Features.SharedFeature.Infrastructure;
-using MyWeirdStuff.ApiService.Features.SharedFeature.KnownHosts;
 using NSubstitute;
 
 namespace MyWeirdStuff.ApiService.Tests.Features.AddComicFeature;
@@ -16,10 +17,20 @@ public sealed class AddComicServiceTests
 
     public AddComicServiceTests()
     {
+        var serviceCollection = new ServiceCollection();
+        serviceCollection.AddSharedFeature();
+        serviceCollection.AddAddComicFeature();
+
         _eventStoreMock = Substitute.For<IEventStore>();
-        var repository = new ComicsRepository(_eventStoreMock);
+        serviceCollection.AddSingleton(_eventStoreMock);
+
         _fakeTimeProvider = new();
-        _sut = new(new KnownHostsService(), repository, _fakeTimeProvider);
+        serviceCollection.AddSingleton<TimeProvider>(_fakeTimeProvider);
+
+        serviceCollection.AddHybridCache();
+
+        var serviceProvider = serviceCollection.BuildServiceProvider();
+        _sut = serviceProvider.GetRequiredService<AddComicService>();
     }
 
     [Fact]
@@ -135,21 +146,25 @@ public sealed class AddComicServiceTests
     }
 
     [Fact]
-    public async Task ShouldPassCancellationTokenToInsert()
+    public async Task ShouldDeduplicateRequests()
     {
         // Given
-        var cs = new CancellationTokenSource();
+        var request = new AddComicRequest { Url = "https://xkcd.com/1" };
 
         // When
-        var request = new AddComicRequest { Url = "https://xkcd.com/1" };
-        await _sut.AddComic(request, cs.Token);
+        var task1 = _sut.AddComic(request, CancellationToken.None);
+        var task2 = _sut.AddComic(request, CancellationToken.None);
+        var task3 = _sut.AddComic(request, CancellationToken.None);
+        await Task.WhenAll(task1, task2, task3);
 
         // Then
         await _eventStoreMock
-            .Received(1)
-            .Insert(
-                Arg.Any<string>(),
-                Arg.Any<IEvent>(),
-                cs.Token);
+            .ReceivedWithAnyArgs(1)
+            .Insert(default!, default!, default);
+
+        var actual1 = await task1;
+        Assert.Equal(request.Url, actual1.Url);
+        var actual2 = await task2;
+        Assert.Equal(request.Url, actual2.Url);
     }
 }

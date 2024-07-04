@@ -45,6 +45,7 @@ builder.AddServiceDefaults();
 
 // Add services to the container.
 builder.Services.AddProblemDetails();
+builder.Services.AddHybridCache();
 
 builder.Services.AddInfrastructure();
 builder.Services.AddSharedFeature();
